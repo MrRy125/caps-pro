@@ -54,7 +54,7 @@ const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleL
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full mt-6 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white !rounded-button whitespace-nowrap">
+              <Button type="submit" className="w-full mt-6 bg-purple-900/30 hover:from-green-700 hover:to-blue-700 text-white !rounded-button whitespace-nowrap">
                 Sign In
               </Button>
             </form>
