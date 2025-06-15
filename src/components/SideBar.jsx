@@ -49,7 +49,7 @@ const Sidebar = ({ currentPage, setCurrentPage, handleLogout, isOpen, onClose })
           <div className="p-4 border-t border-[#333333] ">
             <div className="flex items-center">
               <Avatar className="h-8 w-8 mr-2">
-                <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white text-xs">
+                <AvatarFallback className="bg-purple-900/30 text-white text-xs">
                   JD
                 </AvatarFallback>
               </Avatar>
