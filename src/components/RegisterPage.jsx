@@ -698,7 +698,6 @@ const RegisterPage = () => {
                       </div>
                     )}
                   </div>
-                </div>
 
                 <div className="flex justify-between">
                   <Button onClick={() => setActiveTab('address')} variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 rounded-md">
@@ -891,3 +890,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+
