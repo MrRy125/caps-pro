@@ -735,3 +735,9 @@ const ModernRSBSAForm = () => {
         </Card>
       </div>
     </div>
+  </div>
+  );
+};
+
+export default RegisterPage;
+
