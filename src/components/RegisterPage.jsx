@@ -1,744 +1,893 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, User, MapPin, Tractor, DollarSign, FileCheck, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
 const RegisterPage = () => {
-  const [activeTab, setActiveTab] = useState('personal');
-  const [formData, setFormData] = useState({});
-  const [additionalCrops, setAdditionalCrops] = useState([]);
-  const [additionalLivestock, setAdditionalLivestock] = useState([]);
-  const [additionalPoultry, setAdditionalPoultry] = useState([]);
-  const [additionalWork, setAdditionalWork] = useState([]);
-  const [additionalFishing, setAdditionalFishing] = useState([]);
+  const [activeTab, setActiveTab] = useState("personal");
+  const [formData, setFormData] = useState({
+    surname: '',
+    firstName: '',
+    middleName: '',
+    extensionName: '',
+    motherMaidenName: '',
+    spouseName: '',
+    idNumber: '',
+    idType: '',
+    nationality: 'Filipino',
+    birthdate: '',
+    placeOfBirth: '',
+    mobileNumber: '',
+    email: '',
+    gender: '',
+    religion: '',
+    education: '',
+    pwd: 'No',
+    fourPs: 'No',
+    fourPsSpecify: '',
+    indigenous: 'No',
+    indigenousSpecify: '',
+    govId: 'No',
+    govIdNumber: '',
+    farmAssoc: 'No',
+    farmAssocSpecify: '',
+    householdHead: 'No',
+    householdHeadName: '',
+    householdRelationship: '',
+    householdMale: '',
+    householdFemale: '',
+    emergencyContact: '',
+    emergencyNumber: '',
+    // Address
+    houseNo: '',
+    street: '',
+    barangay: '',
+    municipality: '',
+    province: '',
+    region: '',
+    sameAddress: false,
+    presentHouseNo: '',
+    presentStreet: '',
+    presentBarangay: '',
+    presentMunicipality: '',
+    presentProvince: '',
+    presentRegion: '',
+    // Farm/Fishery
+    registryType: '',
+    numFarmParcels: '1',
+    crops: [],
+    animals: [],
+    // Additional for add buttons
+    otherCrops: [],
+    otherLivestock: [],
+    otherPoultry: [],
+    otherWork: [],
+    otherFishing: [],
+    farmParcels: Array(3).fill({ location: '', area: '', docNo: '', ownershipType: '', ownerName: '', arb: 'No', farmType: '', organic: 'N', commodity: '', heads: '', animalType: '' }),
+    workTypes: [],
+    fishingTypes: [],
+    // Financial
+    rsbsaReference: '',
+    tinNumber: '',
+    profession: '',
+    grossFarmingIncome: '',
+    grossNonFarmingIncome: '',
+    sourceOfFunds: '',
+  });
+  const [showModal, setShowModal] = useState(false);
 
-  const tabs = [
-    { id: 'personal', label: 'Personal Info', icon: User },
-    { id: 'address', label: 'Address', icon: MapPin },
-    { id: 'farm', label: 'Farm/Fishery', icon: Tractor },
-    { id: 'financial', label: 'Financial', icon: DollarSign },
-    { id: 'review', label: 'Review', icon: FileCheck }
-  ];
-
-  const updateFormData = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateFormData = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const addItem = (type, setter) => {
-    setter(prev => [...prev, { id: Date.now(), name: '', value: '' }]);
-  };
-
-  const removeItem = (type, id, setter) => {
-    setter(prev => prev.filter(item => item.id !== id));
-  };
-
-  const nextTab = () => {
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-    if (currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1].id);
+  const updateCheckboxArray = (name, value) => {
+    let newArray = [...formData[name]];
+    if (newArray.includes(value)) {
+      newArray = newArray.filter(item => item !== value);
+    } else {
+      newArray.push(value);
     }
+    setFormData(prev => ({ ...prev, [name]: newArray }));
   };
 
-  const prevTab = () => {
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-    if (currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1].id);
-    }
+  const addOther = (field) => {
+    setFormData(prev => ({ ...prev, [field]: [...prev[field], ''] }));
   };
 
-  const FormInput = ({ label, type = "text", name, placeholder, required = false, className = "", ...props }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        className={`w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 hover:border-slate-300 ${className}`}
-        value={formData[name] || ''}
-        onChange={(e) => updateFormData(name, e.target.value)}
-        {...props}
-      />
-    </div>
-  );
+  const updateOther = (field, index, value) => {
+    const newArray = [...formData[field]];
+    newArray[index] = value;
+    setFormData(prev => ({ ...prev, [field]: newArray }));
+  };
 
-  const FormSelect = ({ label, name, options, required = false, ...props }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <select
-        name={name}
-        className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 hover:border-slate-300 appearance-none cursor-pointer"
-        value={formData[name] || ''}
-        onChange={(e) => updateFormData(name, e.target.value)}
-        {...props}
-      >
-        {options.map(option => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    </div>
-  );
+  const updateParcel = (index, subField, value) => {
+    const newParcels = [...formData.farmParcels];
+    newParcels[index][subField] = value;
+    setFormData(prev => ({ ...prev, farmParcels: newParcels }));
+  };
 
-  const RadioGroup = ({ label, name, options, required = false }) => (
-    <div className="space-y-3">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="flex gap-4">
-        {options.map(option => (
-          <div key={option.value} className="flex items-center">
-            <input
-              type="radio"
-              id={`${name}-${option.value}`}
-              name={name}
-              value={option.value}
-              checked={formData[name] === option.value}
-              onChange={(e) => updateFormData(name, e.target.value)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300"
-            />
-            <label htmlFor={`${name}-${option.value}`} className="ml-2 text-slate-700">
-              {option.label}
-            </label>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const handleSameAddress = (checked) => {
+    setFormData(prev => ({
+      ...prev,
+      sameAddress: checked,
+      presentHouseNo: checked ? prev.houseNo : '',
+      presentStreet: checked ? prev.street : '',
+      presentBarangay: checked ? prev.barangay : '',
+      presentMunicipality: checked ? prev.municipality : '',
+      presentProvince: checked ? prev.province : '',
+      presentRegion: checked ? prev.region : '',
+    }));
+  };
 
-  const renderPersonalInfo = () => (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <FormInput label="Surname" name="surname" placeholder="Last name" required />
-        <FormInput label="First Name" name="firstName" placeholder="First name" required />
-        <FormInput label="Middle Name" name="middleName" placeholder="Middle name" />
-        <FormInput label="Extension Name" name="extensionName" placeholder="Jr., Sr., III" />
-      </div>
+  const handleSubmit = () => {
+    setShowModal(true);
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RadioGroup 
-          label="Sex" 
-          name="sex" 
-          options={[
-            { value: 'Male', label: 'Male' },
-            { value: 'Female', label: 'Female' }
-          ]} 
-          required 
-        />
-        <FormSelect 
-          label="Civil Status" 
-          name="civilStatus" 
-          options={[
-            { value: '', label: 'Select Civil Status' },
-            { value: 'Single', label: 'Single' },
-            { value: 'Married', label: 'Married' },
-            { value: 'Widowed', label: 'Widowed' },
-            { value: 'Separated', label: 'Separated' }
-          ]} 
-          required 
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Name of Spouse (if Married)" name="spouseName" placeholder="Spouse's full name" />
-        <FormInput label="Mother's Maiden Name" name="motherMaidenName" placeholder="Mother's maiden name" required />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Date of Birth" name="dob" type="date" required />
-        <FormInput label="Place of Birth" name="pob" placeholder="City, Province" required />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Religion" name="religion" placeholder="Religion" />
-        <FormSelect 
-          label="Highest Education" 
-          name="education" 
-          options={[
-            { value: '', label: 'Select Education Level' },
-            { value: 'None', label: 'None' },
-            { value: 'Elementary', label: 'Elementary' },
-            { value: 'High School', label: 'High School' },
-            { value: 'Vocational', label: 'Vocational' },
-            { value: 'College', label: 'College' },
-            { value: 'Post Graduate', label: 'Post Graduate' }
-          ]} 
-        />
-      </div>
-
-      <div className="space-y-6">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Additional Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RadioGroup 
-              label="Person with Disability (PWD)" 
-              name="pwd" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
-            <RadioGroup 
-              label="4P's Beneficiary" 
-              name="fourPs" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
-          </div>
-          {formData.fourPs === 'Yes' && (
-            <div className="mt-4">
-              <FormInput label="If Yes, Specify" name="fourPsSpecify" placeholder="Specify 4P's details" />
-            </div>
-          )}
-        </div>
-
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Membership & Identification</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RadioGroup 
-              label="Member of Indigenous Group" 
-              name="indigenous" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
-            <RadioGroup 
-              label="With Government ID" 
-              name="govId" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
-          </div>
-          {formData.indigenous === 'Yes' && (
-            <div className="mt-4">
-              <FormInput label="If Yes, Specify Indigenous Group" name="indigenousSpecify" placeholder="Specify indigenous group" />
-            </div>
-          )}
-          {formData.govId === 'Yes' && (
-            <div className="mt-4">
-              <FormInput label="Government ID Number" name="govIdNumber" placeholder="ID Number" />
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Contact Number" name="contactNumber" placeholder="+63 XXX XXX XXXX" />
-        <FormInput label="Emergency Contact Person" name="emergencyContact" placeholder="Full name" />
-      </div>
-    </div>
-  );
-
-  const renderAddress = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-8 rounded-2xl border border-slate-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-blue-600" />
-          Address Information
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FormInput label="House/Lot/Building No." name="houseNo" placeholder="House number" />
-          <FormInput label="Street/Sitio/Subdivision" name="street" placeholder="Street name" />
-          <FormInput label="Barangay" name="barangay" placeholder="Barangay" required />
-          <FormInput label="Municipality/City" name="municipality" placeholder="Municipality/City" required />
-          <FormInput label="Province" name="province" placeholder="Province" required />
-          <FormInput label="Region" name="region" placeholder="Region" required />
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderFarmFishery = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6">Main Livelihood</h3>
-        <FormSelect 
-          label="Select Main Livelihood" 
-          name="mainLivelihood" 
-          options={[
-            { value: '', label: 'Select Livelihood' },
-            { value: 'Farmer', label: 'Farmer' },
-            { value: 'Farmworker/Laborer', label: 'Farmworker/Laborer' },
-            { value: 'Fisherfolk', label: 'Fisherfolk' }
-          ]} 
-          required 
-        />
-      </div>
-
-      {formData.mainLivelihood === 'Farmer' && (
-        <div className="space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-            <h4 className="text-lg font-semibold text-slate-800 mb-6">Farming Activities</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <FormInput label="Rice Area (ha)" name="riceValue" type="number" placeholder="0.0" />
-              <FormInput label="Corn Area (ha)" name="cornValue" type="number" placeholder="0.0" />
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h5 className="font-semibold text-slate-700">Other Crops</h5>
-                <Button
-                  type="button"
-                  onClick={() => addItem('crops', setAdditionalCrops)}
-                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 py-2"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Crop
-                </Button>
-              </div>
-              {additionalCrops.map((crop) => (
-                <div key={crop.id} className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <FormInput label="Crop Name" placeholder="Crop name" />
-                  </div>
-                  <div className="flex-1">
-                    <FormInput label="Area (ha)" type="number" placeholder="0.0" />
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => removeItem('crops', crop.id, setAdditionalCrops)}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                    size="sm"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h5 className="font-semibold text-slate-700">Livestock</h5>
-                <Button
-                  type="button"
-                  onClick={() => addItem('livestock', setAdditionalLivestock)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-3 py-1 text-sm"
-                >
-                  <Plus className="h-3 w-3 mr-1" /> Add
-                </Button>
-              </div>
-              {additionalLivestock.map((animal) => (
-                <div key={animal.id} className="flex gap-2 items-end mb-3">
-                  <FormInput placeholder="Type" className="text-sm" />
-                  <FormInput type="number" placeholder="Heads" className="text-sm" />
-                  <Button
-                    type="button"
-                    onClick={() => removeItem('livestock', animal.id, setAdditionalLivestock)}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                    size="sm"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h5 className="font-semibold text-slate-700">Poultry</h5>
-                <Button
-                  type="button"
-                  onClick={() => addItem('poultry', setAdditionalPoultry)}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-full px-3 py-1 text-sm"
-                >
-                  <Plus className="h-3 w-3 mr-1" /> Add
-                </Button>
-              </div>
-              {additionalPoultry.map((bird) => (
-                <div key={bird.id} className="flex gap-2 items-end mb-3">
-                  <FormInput placeholder="Type" className="text-sm" />
-                  <FormInput type="number" placeholder="Heads" className="text-sm" />
-                  <Button
-                    type="button"
-                    onClick={() => removeItem('poultry', bird.id, setAdditionalPoultry)}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                    size="sm"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {formData.mainLivelihood === 'Farmworker/Laborer' && (
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 className="text-lg font-semibold text-slate-800 mb-6">Kind of Work</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {['Land Preparation', 'Planting/Transplanting', 'Cultivation', 'Harvesting'].map(work => (
-              <label key={work} className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 text-blue-600 rounded" />
-                <span className="text-slate-700">{work}</span>
-              </label>
-            ))}
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h5 className="font-semibold text-slate-700">Other Work Types</h5>
-              <Button
-                type="button"
-                onClick={() => addItem('work', setAdditionalWork)}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 py-2"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-1" /> Add Work
-              </Button>
-            </div>
-            {additionalWork.map((work) => (
-              <div key={work.id} className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <FormInput placeholder="Work type" />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => removeItem('work', work.id, setAdditionalWork)}
-                  className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                  size="sm"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {formData.mainLivelihood === 'Fisherfolk' && (
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 className="text-lg font-semibold text-slate-800 mb-6">Type of Fishing Activity</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {['Fish Capture', 'Aquaculture', 'Gleaning', 'Fish Processing', 'Fish Vending'].map(activity => (
-              <label key={activity} className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 text-blue-600 rounded" />
-                <span className="text-slate-700">{activity}</span>
-              </label>
-            ))}
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h5 className="font-semibold text-slate-700">Other Fishing Activities</h5>
-              <Button
-                type="button"
-                onClick={() => addItem('fishing', setAdditionalFishing)}
-                className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-full px-4 py-2"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-1" /> Add Activity
-              </Button>
-            </div>
-            {additionalFishing.map((activity) => (
-              <div key={activity.id} className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <FormInput placeholder="Fishing activity" />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => removeItem('fishing', activity.id, setAdditionalFishing)}
-                  className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                  size="sm"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {(formData.mainLivelihood === 'Farmer' || formData.mainLivelihood === 'Farmworker/Laborer') && (
-        <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-8 rounded-2xl border border-emerald-200">
-          <h4 className="text-xl font-semibold text-slate-800 mb-6">Farm Parcels</h4>
-          {[1, 2, 3].map(parcelNum => (
-            <div key={parcelNum} className="bg-white p-6 rounded-xl border border-slate-200 mb-6 shadow-sm">
-              <h5 className="text-lg font-semibold text-slate-700 mb-4">Parcel {parcelNum}</h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <FormInput label="Location (Barangay & Municipality)" name={`parcel${parcelNum}Location`} placeholder="Location details" />
-                <FormInput label="Total Area (ha)" name={`parcel${parcelNum}Area`} type="number" placeholder="0.0" />
-                <FormInput label="Ownership Document No" name={`parcel${parcelNum}DocNo`} placeholder="Document number" />
-                <FormSelect 
-                  label="Ownership Type" 
-                  name={`parcel${parcelNum}Ownership`}
-                  options={[
-                    { value: '', label: 'Select Ownership Type' },
-                    { value: 'Registered Owner', label: 'Registered Owner' },
-                    { value: 'Tenant', label: 'Tenant' },
-                    { value: 'Lessee', label: 'Lessee' },
-                    { value: 'Others', label: 'Others' }
-                  ]} 
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput label="Land Owner Name (if Tenant/Lessee)" name={`parcel${parcelNum}OwnerName`} placeholder="Land owner name" />
-                <FormSelect 
-                  label="Farm Type" 
-                  name={`parcel${parcelNum}FarmType`}
-                  options={[
-                    { value: '', label: 'Select Farm Type' },
-                    { value: '1 - Irrigated', label: '1 - Irrigated' },
-                    { value: '2 - Rainfed Upland', label: '2 - Rainfed Upland' },
-                    { value: '3 - Rainfed Lowland', label: '3 - Rainfed Lowland' }
-                  ]} 
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <RadioGroup 
-                  label="Agrarian Reform Beneficiary (ARB)" 
-                  name={`parcel${parcelNum}ARB`}
-                  options={[
-                    { value: 'Yes', label: 'Yes' },
-                    { value: 'No', label: 'No' }
-                  ]} 
-                />
-                <RadioGroup 
-                  label="Organic Practitioner" 
-                  name={`parcel${parcelNum}Organic`}
-                  options={[
-                    { value: 'Y', label: 'Yes' },
-                    { value: 'N', label: 'No' }
-                  ]} 
-                />
-                <FormInput label="Crop/Commodity" name={`parcel${parcelNum}Commodity`} placeholder="Main crop" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-  const renderFinancial = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-green-600" />
-          Financial Information
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormInput label="RSBSA Reference Number" name="rsbsaReference" placeholder="RSBSA Reference Number" />
-          <FormInput label="TIN Number" name="tinNumber" placeholder="TIN Number" />
-          <FormSelect 
-            label="Profession" 
-            name="profession"
-            options={[
-              { value: '', label: 'Select Profession' },
-              { value: 'Farmer', label: 'Farmer' },
-              { value: 'Fisherfolk', label: 'Fisherfolk' },
-              { value: 'Farm Laborer', label: 'Farm Laborer' },
-              { value: 'Agricultural Technician', label: 'Agricultural Technician' },
-              { value: 'Agronomist', label: 'Agronomist' },
-              { value: 'Horticulturist', label: 'Horticulturist' },
-              { value: 'Agricultural Engineer', label: 'Agricultural Engineer' },
-              { value: 'Other', label: 'Other' }
-            ]} 
-          />
-          <FormSelect 
-            label="Source of Funds" 
-            name="sourceOfFunds"
-            options={[
-              { value: '', label: 'Select Source of Funds' },
-              { value: 'Personal Savings', label: 'Personal Savings' },
-              { value: 'Bank Loan', label: 'Bank Loan' },
-              { value: 'Cooperative Loan', label: 'Cooperative Loan' },
-              { value: 'Government Subsidy', label: 'Government Subsidy' },
-              { value: 'Informal Lender', label: 'Informal Lender' },
-              { value: 'Microfinance NGO', label: 'Microfinance NGO' },
-              { value: 'Other', label: 'Other' }
-            ]} 
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <FormInput 
-            label="Gross Annual Income Last Year (Farming)" 
-            name="grossFarmingIncome" 
-            type="number" 
-            placeholder="0.00" 
-          />
-          <FormInput 
-            label="Gross Annual Income Last Year (Non-Farming)" 
-            name="grossNonFarmingIncome" 
-            type="number" 
-            placeholder="0.00" 
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderReview = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-          <FileCheck className="h-5 w-5 text-green-600" />
-          Review Information
-        </h3>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <p className="text-slate-600 text-center py-8">
-            Please review all information carefully before submitting your RSBSA registration.
-            Make sure all details are accurate and complete.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Personal Information</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>Name:</strong> {formData.surname || 'N/A'}, {formData.firstName || 'N/A'} {formData.middleName || ''}</p>
-                <p><strong>Sex:</strong> {formData.sex || 'N/A'}</p>
-                <p><strong>Civil Status:</strong> {formData.civilStatus || 'N/A'}</p>
-                <p><strong>Date of Birth:</strong> {formData.dob || 'N/A'}</p>
-                <p><strong>Contact:</strong> {formData.contactNumber || 'N/A'}</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Address</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>Barangay:</strong> {formData.barangay || 'N/A'}</p>
-                <p><strong>Municipality:</strong> {formData.municipality || 'N/A'}</p>
-                <p><strong>Province:</strong> {formData.province || 'N/A'}</p>
-                <p><strong>Region:</strong> {formData.region || 'N/A'}</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Livelihood</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>Main Livelihood:</strong> {formData.mainLivelihood || 'N/A'}</p>
-                <p><strong>Profession:</strong> {formData.profession || 'N/A'}</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Financial</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>RSBSA Reference:</strong> {formData.rsbsaReference || 'N/A'}</p>
-                <p><strong>TIN Number:</strong> {formData.tinNumber || 'N/A'}</p>
-                <p><strong>Source of Funds:</strong> {formData.sourceOfFunds || 'N/A'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const getCurrentIcon = (tabId) => {
-    const tab = tabs.find(t => t.id === tabId);
-    return tab ? tab.icon : User;
+  const confirmSubmit = () => {
+    setShowModal(false);
+    // Submit logic here, e.g., API call
+    console.log('Submitted', formData);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">RSBSA Registration Form</h1>
-          <p className="text-slate-600">Registry System for Basic Sectors in Agriculture</p>
-        </div>
+    <div className="p-6 space-y-6">
+      <Card className="bg-[#1e1e1e] border-0 shadow-md">
+        <CardHeader>
+          <CardTitle className="text-white text-xl">Register New RSBSA</CardTitle>
+          <CardDescription className="text-gray-400">Fill in the details to register a new farmer or fisherfolk</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-5 bg-[#252525] mb-6">
+              <TabsTrigger value="personal" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
+                Personal Info
+              </TabsTrigger>
+              <TabsTrigger value="address" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
+                Address
+              </TabsTrigger>
+              <TabsTrigger value="farm" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
+                Farm/Fishery
+              </TabsTrigger>
+              <TabsTrigger value="financial" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
+                Financial
+              </TabsTrigger>
+              <TabsTrigger value="review" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
+                Review
+              </TabsTrigger>
+            </TabsList>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-8">
-            <CardTitle className="text-2xl font-bold flex items-center gap-3">
-              {React.createElement(getCurrentIcon(activeTab), { className: "h-7 w-7" })}
-              {tabs.find(t => t.id === activeTab)?.label}
-            </CardTitle>
-          </CardHeader>
+            <TabsContent value="personal" className="p-6">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Last Name / Qualifier</Label>
+                    <Input name="surname" value={formData.surname} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Last Name" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">First Name</Label>
+                    <Input name="firstName" value={formData.firstName} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="First Name" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Middle Name</Label>
+                    <Input name="middleName" value={formData.middleName} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Middle Name" />
+                  </div>
+                </div>
 
-          <CardContent className="p-0">
-            {/* Tab Navigation */}
-            <div className="px-8 pt-8">
-              <div className="flex justify-between items-center mb-8">
-                {tabs.map((tab, index) => {
-                  const Icon = tab.icon;
-                  const isActive = tab.id === activeTab;
-                  const isCompleted = tabs.findIndex(t => t.id === activeTab) > index;
-                  
-                  return (
-                    <div key={tab.id} className="flex items-center">
-                      <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
-                        isActive 
-                          ? 'bg-blue-600 border-blue-600 text-white shadow-lg scale-110' 
-                          : isCompleted
-                          ? 'bg-green-500 border-green-500 text-white'
-                          : 'bg-slate-100 border-slate-300 text-slate-400'
-                      }`}>
-                        {isCompleted ? (
-                          <CheckCircle className="h-6 w-6" />
-                        ) : (
-                          <Icon className="h-6 w-6" />
-                        )}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Extension Name</Label>
+                    <Input name="extensionName" value={formData.extensionName} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Jr., Sr." />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Mother's Maiden Name</Label>
+                    <Input name="motherMaidenName" value={formData.motherMaidenName} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Mother's Maiden Name" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Spouse Name (if married)</Label>
+                    <Input name="spouseName" value={formData.spouseName} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Spouse Name" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Religion</Label>
+                    <Input name="religion" value={formData.religion} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Religion" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">ID Number</Label>
+                    <Input name="idNumber" value={formData.idNumber} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="ID Number" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">ID Type</Label>
+                    <Select onValueChange={(value) => updateFormData({target: {name: 'idType', value}})}>
+                      <SelectTrigger className="bg-[#252525] border-[#333333] text-white">
+                        <SelectValue placeholder="Select ID Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="passport">Passport</SelectItem>
+                        <SelectItem value="drivers_license">Driver's License</SelectItem>
+                        <SelectItem value="sss">SSS ID</SelectItem>
+                        <SelectItem value="philhealth">PhilHealth ID</SelectItem>
+                        <SelectItem value="voters">Voter's ID</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Nationality</Label>
+                    <Input name="nationality" value={formData.nationality} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Nationality" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Birthdate</Label>
+                    <Input type="date" name="birthdate" value={formData.birthdate} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Place of Birth</Label>
+                    <Input name="placeOfBirth" value={formData.placeOfBirth} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Place of Birth" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Mobile Number</Label>
+                    <Input name="mobileNumber" value={formData.mobileNumber} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="+63 XXX XXX XXXX" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Email Address</Label>
+                    <Input name="email" value={formData.email} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="email@example.com" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Gender</Label>
+                    <RadioGroup className="flex gap-4 mt-2" onValueChange={(value) => updateFormData({target: {name: 'gender', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Male" id="male" />
+                        <Label htmlFor="male" className="text-gray-300">Male</Label>
                       </div>
-                      {index < tabs.length - 1 && (
-                        <div className={`w-16 h-0.5 mx-2 transition-colors duration-300 ${
-                          isCompleted ? 'bg-green-500' : 'bg-slate-200'
-                        }`} />
-                      )}
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Female" id="female" />
+                        <Label htmlFor="female" className="text-gray-300">Female</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Highest Formal Education</Label>
+                    <Select onValueChange={(value) => updateFormData({target: {name: 'education', value}})}>
+                      <SelectTrigger className="bg-[#252525] border-[#333333] text-white">
+                        <SelectValue placeholder="Select Education" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="None">None</SelectItem>
+                        <SelectItem value="Elementary">Elementary</SelectItem>
+                        <SelectItem value="High School">High School</SelectItem>
+                        <SelectItem value="Vocational">Vocational</SelectItem>
+                        <SelectItem value="College">College</SelectItem>
+                        <SelectItem value="Post Graduate">Post Graduate</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Civil Status</Label>
+                    <Select onValueChange={(value) => updateFormData({target: {name: 'civilStatus', value}})}>
+                      <SelectTrigger className="bg-[#252525] border-[#333333] text-white">
+                        <SelectValue placeholder="Select Civil Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Single">Single</SelectItem>
+                        <SelectItem value="Married">Married</SelectItem>
+                        <SelectItem value="Widowed">Widowed</SelectItem>
+                        <SelectItem value="Separated">Separated</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">PWD</Label>
+                    <RadioGroup className="flex gap-4" onValueChange={(value) => updateFormData({target: {name: 'pwd', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="pwd-yes" />
+                        <Label htmlFor="pwd-yes" className="text-gray-300">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="pwd-no" />
+                        <Label htmlFor="pwd-no" className="text-gray-300">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">4P's Beneficiary</Label>
+                    <RadioGroup className="flex gap-4" onValueChange={(value) => updateFormData({target: {name: 'fourPs', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="fourPs-yes" />
+                        <Label htmlFor="fourPs-yes" className="text-gray-300">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="fourPs-no" />
+                        <Label htmlFor="fourPs-no" className="text-gray-300">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Indigenous Group</Label>
+                    <RadioGroup className="flex gap-4" onValueChange={(value) => updateFormData({target: {name: 'indigenous', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="indigenous-yes" />
+                        <Label htmlFor="indigenous-yes" className="text-gray-300">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="indigenous-no" />
+                        <Label htmlFor="indigenous-no" className="text-gray-300">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Government ID</Label>
+                    <RadioGroup className="flex gap-4" onValueChange={(value) => updateFormData({target: {name: 'govId', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="govId-yes" />
+                        <Label htmlFor="govId-yes" className="text-gray-300">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="govId-no" />
+                        <Label htmlFor="govId-no" className="text-gray-300">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+
+                {formData.fourPs === 'Yes' && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">4P's Specify</Label>
+                    <Input name="fourPsSpecify" value={formData.fourPsSpecify} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Specify" />
+                  </div>
+                )}
+                {formData.indigenous === 'Yes' && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Indigenous Specify</Label>
+                    <Input name="indigenousSpecify" value={formData.indigenousSpecify} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Specify" />
+                  </div>
+                )}
+                {formData.govId === 'Yes' && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Government ID Number</Label>
+                    <Input name="govIdNumber" value={formData.govIdNumber} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="ID Number" />
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Farmers Association</Label>
+                    <RadioGroup className="flex gap-4" onValueChange={(value) => updateFormData({target: {name: 'farmAssoc', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="farmAssoc-yes" />
+                        <Label htmlFor="farmAssoc-yes" className="text-gray-300">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="farmAssoc-no" />
+                        <Label htmlFor="farmAssoc-no" className="text-gray-300">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  {formData.farmAssoc === 'Yes' && (
+                    <div className="md:col-span-3">
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Farm Assoc Specify</Label>
+                      <Input name="farmAssocSpecify" value={formData.farmAssocSpecify} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Specify" />
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Form Content */}
-            <div className="px-8 pb-8">
-              <form className="space-y-8">
-                {activeTab === 'personal' && renderPersonalInfo()}
-                {activeTab === 'address' && renderAddress()}
-                {activeTab === 'farm' && renderFarmFishery()}
-                {activeTab === 'financial' && renderFinancial()}
-                {activeTab === 'review' && renderReview()}
-
-                {/* Navigation Buttons */}
-                <div className="flex justify-between pt-8 border-t border-slate-200">
-                  <Button
-                    type="button"
-                    onClick={prevTab}
-                    disabled={activeTab === 'personal'}
-                    className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg"
-                  >
-                    <ChevronLeft className="h-4 w-4 mr-2" />
-                    Previous
-                  </Button>
-
-                  {activeTab === 'review' ? (
-                    <Button
-                      type="submit"
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Submit Registration
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={nextTab}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                    >
-                      Next
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
                   )}
                 </div>
-              </form>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Household Head</Label>
+                    <RadioGroup className="flex gap-4" onValueChange={(value) => updateFormData({target: {name: 'householdHead', value}})}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="householdHead-yes" />
+                        <Label htmlFor="householdHead-yes" className="text-gray-300">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="householdHead-no" />
+                        <Label htmlFor="householdHead-no" className="text-gray-300">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  {formData.householdHead === 'No' && (
+                    <>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-300 mb-1 block">Household Head Name</Label>
+                        <Input name="householdHeadName" value={formData.householdHeadName} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Name" />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-300 mb-1 block">Relationship</Label>
+                        <Input name="householdRelationship" value={formData.householdRelationship} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Relationship" />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">No. of Male Household Members</Label>
+                    <Input type="number" name="householdMale" value={formData.householdMale} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="0" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">No. of Female Household Members</Label>
+                    <Input type="number" name="householdFemale" value={formData.householdFemale} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="0" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Emergency Contact</Label>
+                    <Input name="emergencyContact" value={formData.emergencyContact} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="Name" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300 mb-1 block">Emergency Number</Label>
+                    <Input name="emergencyNumber" value={formData.emergencyNumber} onChange={updateFormData} className="bg-[#252525] border-[#333333] text-white" placeholder="+63 XXX XXX XXXX" />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button onClick={() => setActiveTab('address')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="address" className="p-6">
+              <div className="space-y-6">
+                <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
+                  <h3 className="text-white font-medium mb-4">Address</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">House/Lot/Bldg No.</Label>
+                      <Input name="houseNo" value={formData.houseNo} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="House No." />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Street/Sitio/Subdv.</Label>
+                      <Input name="street" value={formData.street} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Street" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Barangay</Label>
+                      <Input name="barangay" value={formData.barangay} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Barangay" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Municipality/City</Label>
+                      <Input name="municipality" value={formData.municipality} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Municipality/City" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Province</Label>
+                      <Input name="province" value={formData.province} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Province" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Region</Label>
+                      <Input name="region" value={formData.region} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Region" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button onClick={() => setActiveTab('personal')} variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 rounded-md">
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                  </Button>
+                  <Button onClick={() => setActiveTab('farm')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="farm" className="p-6">
+              <div className="space-y-6">
+                <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
+                  <h3 className="text-white font-medium mb-4">Registry Type</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {['Farmer', 'Fisherfolk', 'Farm Worker/Laborer', 'Agri-Youth'].map(type => (
+                      <div key={type} className={`flex-1 border border-[#333333] rounded-md p-4 bg-[#2a2a2a] cursor-pointer hover:bg-[#333333] ${formData.registryType === type ? 'border-blue-600' : ''}`}>
+                        <RadioGroup className="flex items-center">
+                          <RadioGroupItem value={type} id={type.toLowerCase().replace(/\s/g, '')} onChange={() => updateFormData({target: {name: 'registryType', value: type}})} />
+                          <Label htmlFor={type.toLowerCase().replace(/\s/g, '')} className="ml-2 text-white font-medium">{type}</Label>
+                        </RadioGroup>
+                        <p className="text-gray-400 text-sm mt-2">{type === 'Farmer' ? 'Register as a farmer' : type === 'Fisherfolk' ? 'Register as a fisherfolk' : type === 'Farm Worker/Laborer' ? 'Register as a farm worker' : 'Register as agri-youth'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {formData.registryType && (
+                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
+                    <h3 className="text-white font-medium mb-4"> {formData.registryType} Details</h3>
+                    { (formData.registryType === 'Farmer' || formData.registryType === 'Agri-Youth' || formData.registryType === 'Farm Worker/Laborer') && (
+                      <div>
+                        <Label className="text-sm font-medium text-gray-300 mb-1 block">Number of Farm Parcels</Label>
+                        <Input type="number" name="numFarmParcels" value={formData.numFarmParcels} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white w-32" min="1" />
+                      </div>
+                    )}
+                    { (formData.registryType === 'Farmer' || formData.registryType === 'Agri-Youth') && (
+                      <>
+                        <h4 className="text-gray-300 font-medium mt-6 mb-3">Crops</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {['Rice', 'Corn', 'Coconut', 'Banana', 'Coffee', 'Cacao', 'Vegetables', 'Fruits', 'Palm Oil', 'Rubber', 'Cassava', 'Sweet Potato'].map((crop) => (
+                            <div key={crop} className="flex items-center">
+                              <Checkbox id={crop.toLowerCase()} checked={formData.crops.includes(crop)} onCheckedChange={() => updateCheckboxArray('crops', crop)} />
+                              <Label htmlFor={crop.toLowerCase()} className="ml-2 text-gray-300">{crop}</Label>
+                            </div>
+                          ))}
+                        </div>
+                        <Button onClick={() => addOther('otherCrops')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">Add Other Crop</Button>
+                        {formData.otherCrops.map((crop, index) => (
+                          <div key={index} className="mt-2 flex gap-4">
+                            <Input value={crop} onChange={(e) => updateOther('otherCrops', index, e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Other Crop" />
+                          </div>
+                        ))}
+
+                        <h4 className="text-gray-300 font-medium mt-6 mb-3">Animals</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {['Carabao', 'Cattle', 'Swine', 'Chicken', 'Duck', 'Goat', 'Horse'].map((animal) => (
+                            <div key={animal} className="flex items-center">
+                              <Checkbox id={animal.toLowerCase()} checked={formData.animals.includes(animal)} onCheckedChange={() => updateCheckboxArray('animals', animal)} />
+                              <Label htmlFor={animal.toLowerCase()} className="ml-2 text-gray-300">{animal}</Label>
+                            </div>
+                          ))}
+                        </div>
+                        <Button onClick={() => addOther('otherLivestock')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">Add Other Livestock</Button>
+                        {formData.otherLivestock.map((livestock, index) => (
+                          <div key={index} className="mt-2 flex gap-4">
+                            <Input value={livestock} onChange={(e) => updateOther('otherLivestock', index, e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Other Livestock" />
+                          </div>
+                        ))}
+                        <Button onClick={() => addOther('otherPoultry')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">Add Other Poultry</Button>
+                        {formData.otherPoultry.map((poultry, index) => (
+                          <div key={index} className="mt-2 flex gap-4">
+                            <Input value={poultry} onChange={(e) => updateOther('otherPoultry', index, e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Other Poultry" />
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    { formData.registryType === 'Farm Worker/Laborer' && (
+                      <div>
+                        <h4 className="text-gray-300 font-medium mt-6 mb-3">Kind of Work</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {['Land Preparation', 'Planting/Transplanting', 'Cultivation', 'Harvesting'].map((work) => (
+                            <div key={work} className="flex items-center">
+                              <Checkbox id={work.toLowerCase().replace(/\//g, '')} checked={formData.workTypes.includes(work)} onCheckedChange={() => updateCheckboxArray('workTypes', work)} />
+                              <Label htmlFor={work.toLowerCase().replace(/\//g, '')} className="ml-2 text-gray-300">{work}</Label>
+                            </div>
+                          ))}
+                        </div>
+                        <Button onClick={() => addOther('otherWork')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">Add Other Work</Button>
+                        {formData.otherWork.map((work, index) => (
+                          <div key={index} className="mt-2 flex gap-4">
+                            <Input value={work} onChange={(e) => updateOther('otherWork', index, e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Other Work" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    { formData.registryType === 'Fisherfolk' && (
+                      <div>
+                        <h4 className="text-gray-300 font-medium mt-6 mb-3">Type of Fishing Activity</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {['Fish Capture', 'Aquaculture', 'Gleaning', 'Fish Processing', 'Fish Vending'].map((fishing) => (
+                            <div key={fishing} className="flex items-center">
+                              <Checkbox id={fishing.toLowerCase().replace(/\s/g, '')} checked={formData.fishingTypes.includes(fishing)} onCheckedChange={() => updateCheckboxArray('fishingTypes', fishing)} />
+                              <Label htmlFor={fishing.toLowerCase().replace(/\s/g, '')} className="ml-2 text-gray-300">{fishing}</Label>
+                            </div>
+                          ))}
+                        </div>
+                        <Button onClick={() => addOther('otherFishing')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">Add Other Fishing</Button>
+                        {formData.otherFishing.map((fishing, index) => (
+                          <div key={index} className="mt-2 flex gap-4">
+                            <Input value={fishing} onChange={(e) => updateOther('otherFishing', index, e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Other Fishing" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    { (formData.registryType !== 'Fisherfolk') && (
+                      <div className="mt-6">
+                        <h4 className="text-gray-300 font-medium mb-3">Farm Parcels</h4>
+                        {formData.farmParcels.map((parcel, index) => (
+                          <div key={index} className="bg-[#2a2a2a] p-4 rounded-md border border-[#333333] mb-4">
+                            <h5 className="text-white mb-2">Parcel {index + 1}</h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Location</Label>
+                                <Input value={parcel.location} onChange={(e) => updateParcel(index, 'location', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Barangay & Municipality" />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Total Area (ha)</Label>
+                                <Input type="number" value={parcel.area} onChange={(e) => updateParcel(index, 'area', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="0.00" />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Ownership Doc No</Label>
+                                <Input value={parcel.docNo} onChange={(e) => updateParcel(index, 'docNo', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Document No" />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Ownership Type</Label>
+                                <Select onValueChange={(value) => updateParcel(index, 'ownershipType', value)}>
+                                  <SelectTrigger className="bg-[#252525] border-[#333333] text-white">
+                                    <SelectValue placeholder="Select" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Registered Owner">Registered Owner</SelectItem>
+                                    <SelectItem value="Tenant">Tenant</SelectItem>
+                                    <SelectItem value="Lessee">Lessee</SelectItem>
+                                    <SelectItem value="Others">Others</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Land Owner Name</Label>
+                                <Input value={parcel.ownerName} onChange={(e) => updateParcel(index, 'ownerName', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Name" />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">ARB</Label>
+                                <RadioGroup className="flex gap-4" onValueChange={(value) => updateParcel(index, 'arb', value)}>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="Yes" id={`arb-yes-${index}`} />
+                                    <Label htmlFor={`arb-yes-${index}`} className="text-gray-300">Yes</Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="No" id={`arb-no-${index}`} />
+                                    <Label htmlFor={`arb-no-${index}`} className="text-gray-300">No</Label>
+                                  </div>
+                                </RadioGroup>
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Farm Type</Label>
+                                <Select onValueChange={(value) => updateParcel(index, 'farmType', value)}>
+                                  <SelectTrigger className="bg-[#252525] border-[#333333] text-white">
+                                    <SelectValue placeholder="Select" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="1 - Irrigated">1 - Irrigated</SelectItem>
+                                    <SelectItem value="2 - Rainfed Upland">2 - Rainfed Upland</SelectItem>
+                                    <SelectItem value="3 - Rainfed Lowland">3 - Rainfed Lowland</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Organic Practitioner</Label>
+                                <RadioGroup className="flex gap-4" onValueChange={(value) => updateParcel(index, 'organic', value)}>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="Y" id={`organic-y-${index}`} />
+                                    <Label htmlFor={`organic-y-${index}`} className="text-gray-300">Y</Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="N" id={`organic-n-${index}`} />
+                                    <Label htmlFor={`organic-n-${index}`} className="text-gray-300">N</Label>
+                                  </div>
+                                </RadioGroup>
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Crop/Commodity</Label>
+                                <Input value={parcel.commodity} onChange={(e) => updateParcel(index, 'commodity', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Commodity" />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">No. of Head</Label>
+                                <Input type="number" value={parcel.heads} onChange={(e) => updateParcel(index, 'heads', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="0" />
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium text-gray-300 mb-1 block">Animal Type</Label>
+                                <Input value={parcel.animalType} onChange={(e) => updateParcel(index, 'animalType', e.target.value)} className="bg-[#252525] border-[#333333] text-white" placeholder="Type" />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button onClick={() => setActiveTab('address')} variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 rounded-md">
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                  </Button>
+                  <Button onClick={() => setActiveTab('financial')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="financial" className="p-6">
+              <div className="space-y-6">
+                <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
+                  <h3 className="text-white font-medium mb-4">Financial Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">RSBSA Reference Number</Label>
+                      <Input name="rsbsaReference" value={formData.rsbsaReference} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="RSBSA Reference Number" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">TIN Number</Label>
+                      <Input name="tinNumber" value={formData.tinNumber} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="TIN Number" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Profession</Label>
+                      <Select onValueChange={(value) => updateFormData({target: {name: 'profession', value}})}>
+                        <SelectTrigger className="bg-[#2a2a2a] border-[#333333] text-white">
+                          <SelectValue placeholder="Select Profession" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Farmer">Farmer</SelectItem>
+                          <SelectItem value="Fisherfolk">Fisherfolk</SelectItem>
+                          <SelectItem value="Farm Laborer">Farm Laborer</SelectItem>
+                          <SelectItem value="Agricultural Technician">Agricultural Technician</SelectItem>
+                          <SelectItem value="Agronomist">Agronomist</SelectItem>
+                          <SelectItem value="Horticulturist">Horticulturist</SelectItem>
+                          <SelectItem value="Agricultural Engineer">Agricultural Engineer</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Gross Annual Income (Farming)</Label>
+                      <Input name="grossFarmingIncome" value={formData.grossFarmingIncome} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="0" type="number" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Gross Annual Income (Non-Farming)</Label>
+                      <Input name="grossNonFarmingIncome" value={formData.grossNonFarmingIncome} onChange={updateFormData} className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="0" type="number" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-300 mb-1 block">Source of Funds</Label>
+                      <Select onValueChange={(value) => updateFormData({target: {name: 'sourceOfFunds', value}})}>
+                        <SelectTrigger className="bg-[#2a2a2a] border-[#333333] text-white">
+                          <SelectValue placeholder="Select Source of Funds" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Personal Savings">Personal Savings</SelectItem>
+                          <SelectItem value="Bank Loan">Bank Loan</SelectItem>
+                          <SelectItem value="Cooperative Loan">Cooperative Loan</SelectItem>
+                          <SelectItem value="Government Subsidy">Government Subsidy</SelectItem>
+                          <SelectItem value="Informal Lender">Informal Lender</SelectItem>
+                          <SelectItem value="Microfinance NGO">Microfinance NGO</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button onClick={() => setActiveTab('farm')} variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 rounded-md">
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                  </Button>
+                  <Button onClick={() => setActiveTab('review')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="review" className="p-6">
+              <div className="space-y-6">
+                <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
+                  <h3 className="text-white font-medium mb-4">Review Information</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-gray-300 font-medium mb-2">Personal Information</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                        <p><span className="text-gray-400">Full Name:</span> {formData.surname} {formData.firstName} {formData.middleName} {formData.extensionName}</p>
+                        <p><span className="text-gray-400">Mother's Maiden Name:</span> {formData.motherMaidenName}</p>
+                        <p><span className="text-gray-400">Spouse Name:</span> {formData.spouseName}</p>
+                        <p><span className="text-gray-400">ID Number:</span> {formData.idNumber}</p>
+                        <p><span className="text-gray-400">ID Type:</span> {formData.idType}</p>
+                        <p><span className="text-gray-400">Nationality:</span> {formData.nationality}</p>
+                        <p><span className="text-gray-400">Birthdate:</span> {formData.birthdate}</p>
+                        <p><span className="text-gray-400">Place of Birth:</span> {formData.placeOfBirth}</p>
+                        <p><span className="text-gray-400">Mobile Number:</span> {formData.mobileNumber}</p>
+                        <p><span className="text-gray-400">Email:</span> {formData.email}</p>
+                        <p><span className="text-gray-400">Gender:</span> {formData.gender}</p>
+                        <p><span className="text-gray-400">Religion:</span> {formData.religion}</p>
+                        <p><span className="text-gray-400">Education:</span> {formData.education}</p>
+                        <p><span className="text-gray-400">PWD:</span> {formData.pwd}</p>
+                        <p><span className="text-gray-400">4P's:</span> {formData.fourPs} {formData.fourPsSpecify}</p>
+                        <p><span className="text-gray-400">Indigenous:</span> {formData.indigenous} {formData.indigenousSpecify}</p>
+                        <p><span className="text-gray-400">Gov ID:</span> {formData.govId} {formData.govIdNumber}</p>
+                        <p><span className="text-gray-400">Farm Assoc:</span> {formData.farmAssoc} {formData.farmAssocSpecify}</p>
+                        <p><span className="text-gray-400">Household Head:</span> {formData.householdHead} {formData.householdHeadName} {formData.householdRelationship}</p>
+                        <p><span className="text-gray-400">Household Male:</span> {formData.householdMale}</p>
+                        <p><span className="text-gray-400">Household Female:</span> {formData.householdFemale}</p>
+                        <p><span className="text-gray-400">Emergency Contact:</span> {formData.emergencyContact} {formData.emergencyNumber}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-[#333333] pt-4">
+                      <h4 className="text-gray-300 font-medium mb-2">Address Information</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                        <p><span className="text-gray-400">House No:</span> {formData.houseNo}</p>
+                        <p><span className="text-gray-400">Street:</span> {formData.street}</p>
+                        <p><span className="text-gray-400">Barangay:</span> {formData.barangay}</p>
+                        <p><span className="text-gray-400">Municipality:</span> {formData.municipality}</p>
+                        <p><span className="text-gray-400">Province:</span> {formData.province}</p>
+                        <p><span className="text-gray-400">Region:</span> {formData.region}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-[#333333] pt-4">
+                      <h4 className="text-gray-300 font-medium mb-2">Farm/Fishery Information</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                        <p><span className="text-gray-400">Registry Type:</span> {formData.registryType}</p>
+                        <p><span className="text-gray-400">Farm Parcels:</span> {formData.numFarmParcels}</p>
+                        <p><span className="text-gray-400">Crops:</span> {formData.crops.join(', ')}</p>
+                        <p><span className="text-gray-400">Animals:</span> {formData.animals.join(', ')}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-[#333333] pt-4">
+                      <h4 className="text-gray-300 font-medium mb-2">Financial Information</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                        <p><span className="text-gray-400">RSBSA Number:</span> {formData.rsbsaReference}</p>
+                        <p><span className="text-gray-400">TIN Number:</span> {formData.tinNumber}</p>
+                        <p><span className="text-gray-400">Profession:</span> {formData.profession}</p>
+                        <p><span className="text-gray-400">Gross Farming Income:</span> {formData.grossFarmingIncome}</p>
+                        <p><span className="text-gray-400">Gross Non-Farming Income:</span> {formData.grossNonFarmingIncome}</p>
+                        <p><span className="text-gray-400">Source of Funds:</span> {formData.sourceOfFunds}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between">
+                  <Button onClick={() => setActiveTab('financial')} variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 rounded-md">
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                  </Button>
+                  <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white rounded-md">
+                    <Check className="mr-2 h-4 w-4" /> Submit Registration
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="bg-[#1e1e1e] text-white">
+          <DialogHeader>
+            <DialogTitle>Confirm Submission</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Are you sure you want to submit the registration form?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowModal(false)} className="border-[#444444] text-gray-300">
+              Cancel
+            </Button>
+            <Button onClick={confirmSubmit} className="bg-green-600 hover:bg-green-700">
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default RegisterPage;
-
-
-
