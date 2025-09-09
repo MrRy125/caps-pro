@@ -1,451 +1,344 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from 'react';
 
-const RegisterPage = () => {
-  return (
-    <div className="p-6 space-y-6">
-        <Card className="bg-[#1e1e1e] border-0 shadow-md">
-          <CardHeader>
-            <CardTitle className="text-white text-xl">Register New RSBSA</CardTitle>
-            <CardDescription className="text-gray-400">Fill in the details to register a new farmer or fisherfolk</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid grid-cols-5 bg-[#252525] mb-6">
-                <TabsTrigger value="personal" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
-                  Personal Info
-                </TabsTrigger>
-                <TabsTrigger value="address" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
-                  Address
-                </TabsTrigger>
-                <TabsTrigger value="farm" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
-                  Farm/Fishery
-                </TabsTrigger>
-                <TabsTrigger value="financial" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
-                  Financial
-                </TabsTrigger>
-                <TabsTrigger value="review" className="data-[state=active]:bg-[#333333] data-[state=active]:text-white text-gray-400">
-                  Review
-                </TabsTrigger>
-              </TabsList>
+const RsbsaForm = () => {
+  const [role, setRole] = useState(null);
+  const [step, setStep] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    // Personal Info (Required: *, Optional: no *)
+    enrollment: 'New', // * New/Existing
+    surname: '', // *
+    firstName: '', // *
+    middleName: '', // optional
+    extensionName: '', // optional
+    sex: '', // *
+    addressHouseNo: '', // optional
+    addressStreet: '', // optional
+    addressBarangay: '', // *
+    addressMunicipality: '', // *
+    addressProvince: '', // *
+    addressRegion: '', // *
+    contactNumber: '', // *
+    dob: '', // *
+    pob: '', // *
+    religion: '', // optional
+    education: '', // *
+    pwd: false, // *
+    civilStatus: '', // *
+    spouseName: '', // conditional if married
+    motherMaidenName: '', // *
+    fourPs: false, // *
+    fourPsSpecify: '', // conditional
+    indigenous: false, // *
+    indigenousSpecify: '', // conditional
+    govId: false, // *
+    govIdNumber: '', // conditional
+    farmAssoc: false, // *
+    farmAssocSpecify: '', // conditional
+    householdHead: false, // *
+    householdHeadName: '', // conditional
+    householdRelationship: '', // conditional
+    householdMale: 0, // *
+    householdFemale: 0, // *
+    emergencyContact: '', // optional
+    emergencyNumber: '', // optional
+    // Livelihood (varies by role)
+    mainLivelihood: '', // set by role
+    farmingActivities: { rice: 0, corn: 0, otherCrops: [] }, // for Farmer/Agri-Youth
+    livestock: [], // for Farmer/Agri-Youth
+    poultry: [], // for Farmer/Agri-Youth
+    workTypes: [], // for Farm Worker
+    otherWork: [], // for Farm Worker
+    fishingTypes: [], // for Fisherfolk
+    otherFishing: [], // for Fisherfolk
+    farmParcels: Array(3).fill({ location: '', area: 0, docNo: '', ownershipType: '', ownerName: '', arb: false, farmType: '', organic: false, commodity: '', heads: 0, animalType: '' }), // for Farmer, Farm Worker, Agri-Youth
+    // Financial
+    grossFarmingIncome: 0, // *
+    grossNonFarmingIncome: 0, // *
+    rsbsaReference: '', // optional
+    tinNumber: '', // optional
+    profession: '', // optional
+    sourceOfFunds: '', // optional
+  });
 
-              <TabsContent value="personal" className="mt-0">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Last Name / Qualifier</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="Last Name" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">First Name</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="First Name" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Middle Name</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="Middle Name" />
-                    </div>
-                  </div>
+  const roles = ['Farmer', 'Fisherfolk', 'Farm Worker/Laborer', 'Agri-Youth'];
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Mother's Maiden Name</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="Mother's Maiden Name" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Name of Spouse</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="Name of Spouse" />
-                    </div>
-                  </div>
+  const updateFormData = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">ID Number</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="ID Number" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">ID Type</label>
-                      <div className="relative">
-                        <select className="w-full h-10 px-3 py-2 bg-[#252525] border border-[#333333] rounded-md text-white appearance-none cursor-pointer">
-                          <option value="">Select ID Type</option>
-                          <option value="passport">Passport</option>
-                          <option value="drivers_license">Driver's License</option>
-                          <option value="sss">SSS ID</option>
-                          <option value="philhealth">PhilHealth ID</option>
-                          <option value="voters">Voter's ID</option>
-                        </select>
-                        <i className="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Nationality</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="Nationality" defaultValue="Filipino" />
-                    </div>
-                  </div>
+  const addOtherCrop = () => {
+    setFormData(prev => ({
+      ...prev,
+      farmingActivities: { ...prev.farmingActivities, otherCrops: [...prev.farmingActivities.otherCrops, { name: '', value: 0 }] }
+    }));
+  };
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Birthdate</label>
-                      <Input type="date" className="bg-[#252525] border-[#333333] text-white" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Place of Birth</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="Place of Birth" />
-                    </div>
-                  </div>
+  const updateOtherCrop = (index, field, value) => {
+    const newCrops = [...formData.farmingActivities.otherCrops];
+    newCrops[index][field] = value;
+    setFormData(prev => ({ ...prev, farmingActivities: { ...prev.farmingActivities, otherCrops: newCrops } }));
+  };
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Mobile Number</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="+63 XXX XXX XXXX" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Email Address</label>
-                      <Input className="bg-[#252525] border-[#333333] text-white" placeholder="email@example.com" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Gender</label>
-                      <div className="flex gap-4 mt-2">
-                        <div className="flex items-center">
-                          <input type="radio" id="male" name="gender" className="h-4 w-4 text-blue-600" />
-                          <label htmlFor="male" className="ml-2 text-gray-300">Male</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input type="radio" id="female" name="gender" className="h-4 w-4 text-blue-600" />
-                          <label htmlFor="female" className="ml-2 text-gray-300">Female</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+  // Similar functions for addLivestock, addPoultry, addWork, addFishing, update parcel, etc.
+  const addLivestock = () => {
+    setFormData(prev => ({ ...prev, livestock: [...prev.livestock, { type: '', heads: 0 }] }));
+  };
 
-                  <div className="flex justify-end">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white !rounded-button whitespace-nowrap">
-                      Next <i className="fas fa-arrow-right ml-2"></i>
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
+  const updateLivestock = (index, field, value) => {
+    const newLivestock = [...formData.livestock];
+    newLivestock[index][field] = value;
+    setFormData(prev => ({ ...prev, livestock: newLivestock }));
+  };
 
-              <TabsContent value="address" className="mt-0">
-                <div className="space-y-6">
-                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
-                    <h3 className="text-white font-medium mb-4">Permanent Address</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Street Address</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="House No., Street" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Barangay/Village</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Barangay/Village" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">City/Municipality</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="City/Municipality" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Province</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Province" />
-                      </div>
-                    </div>
-                  </div>
+  const addPoultry = () => {
+    setFormData(prev => ({ ...prev, poultry: [...prev.poultry, { type: '', heads: 0 }] }));
+  };
 
-                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-white font-medium">Present Address</h3>
-                      <div className="flex items-center">
-                        <input type="checkbox" id="sameAddress" className="h-4 w-4 text-blue-600" />
-                        <label htmlFor="sameAddress" className="ml-2 text-gray-300 text-sm">Same as Permanent Address</label>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Street Address</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="House No., Street" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Barangay/Village</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Barangay/Village" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">City/Municipality</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="City/Municipality" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Province</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Province" />
-                      </div>
-                    </div>
-                  </div>
+  const updatePoultry = (index, field, value) => {
+    const newPoultry = [...formData.poultry];
+    newPoultry[index][field] = value;
+    setFormData(prev => ({ ...prev, poultry: newPoultry }));
+  };
 
-                  <div className="flex justify-between">
-                    <Button variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 !rounded-button whitespace-nowrap">
-                      <i className="fas fa-arrow-left mr-2"></i> Previous
-                    </Button>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white !rounded-button whitespace-nowrap">
-                      Next <i className="fas fa-arrow-right ml-2"></i>
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
+  const addWork = () => {
+    setFormData(prev => ({ ...prev, otherWork: [...prev.otherWork, ''] }));
+  };
 
-              <TabsContent value="farm" className="mt-0">
-                <div className="space-y-6">
-                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-white font-medium">Registry Type</h3>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="flex-1 border border-[#333333] rounded-md p-4 bg-[#2a2a2a] cursor-pointer hover:bg-[#333333]">
-                        <div className="flex items-center">
-                          <input type="radio" id="farmer" name="registryType" className="h-4 w-4 text-green-600" />
-                          <label htmlFor="farmer" className="ml-2 text-white font-medium">Farmer</label>
-                        </div>
-                        <p className="text-gray-400 text-sm mt-2">Register as a farmer with crop and animal production details</p>
-                      </div>
-                      <div className="flex-1 border border-[#333333] rounded-md p-4 bg-[#2a2a2a] cursor-pointer hover:bg-[#333333]">
-                        <div className="flex items-center">
-                          <input type="radio" id="fisherfolk" name="registryType" className="h-4 w-4 text-blue-600" />
-                          <label htmlFor="fisherfolk" className="ml-2 text-white font-medium">Fisherfolk</label>
-                        </div>
-                        <p className="text-gray-400 text-sm mt-2">Register as a fisherfolk with fishing vessel and boundary details</p>
-                      </div>
-                    </div>
-                  </div>
+  const updateWork = (index, value) => {
+    const newWork = [...formData.otherWork];
+    newWork[index] = value;
+    setFormData(prev => ({ ...prev, otherWork: newWork }));
+  };
 
-                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
-                    <h3 className="text-white font-medium mb-4">Farm Details</h3>
-                    <div className="mb-4">
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Number of Farm Parcels</label>
-                      <Input type="number" className="bg-[#2a2a2a] border-[#333333] text-white w-32" min="1" defaultValue="1" />
-                    </div>
+  const addFishing = () => {
+    setFormData(prev => ({ ...prev, otherFishing: [...prev.otherFishing, ''] }));
+  };
 
-                    <h4 className="text-gray-300 font-medium mt-6 mb-3">Crops</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {['Rice', 'Corn', 'Coconut', 'Banana', 'Coffee', 'Cacao', 'Vegetables', 'Fruits', 'Palm Oil', 'Rubber', 'Cassava', 'Sweet Potato'].map((crop) => (
-                        <div key={crop} className="flex items-center">
-                          <input type="checkbox" id={crop.toLowerCase()} className="h-4 w-4 text-green-600" />
-                          <label htmlFor={crop.toLowerCase()} className="ml-2 text-gray-300">{crop}</label>
-                        </div>
-                      ))}
-                    </div>
+  const updateFishing = (index, value) => {
+    const newFishing = [...formData.otherFishing];
+    newFishing[index] = value;
+    setFormData(prev => ({ ...prev, otherFishing: newFishing }));
+  };
 
-                    <h4 className="text-gray-300 font-medium mt-6 mb-3">Animals</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {['Carabao', 'Cattle', 'Swine', 'Chicken', 'Duck', 'Goat', 'Horse'].map((animal) => (
-                        <div key={animal} className="flex items-center">
-                          <input type="checkbox" id={animal.toLowerCase()} className="h-4 w-4 text-green-600" />
-                          <label htmlFor={animal.toLowerCase()} className="ml-2 text-gray-300">{animal}</label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+  const updateParcel = (index, field, value) => {
+    const newParcels = [...formData.farmParcels];
+    newParcels[index][field] = value;
+    setFormData(prev => ({ ...prev, farmParcels: newParcels }));
+  };
 
-                  <div className="flex justify-between">
-                    <Button variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 !rounded-button whitespace-nowrap">
-                      <i className="fas fa-arrow-left mr-2"></i> Previous
-                    </Button>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white !rounded-button whitespace-nowrap">
-                      Next <i className="fas fa-arrow-right ml-2"></i>
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
+  const handleSubmit = () => {
+    setShowModal(true);
+    // Simulate submit
+    console.log(formData);
+  };
 
-              <TabsContent value="financial" className="mt-0">
-                <div className="space-y-6">
-                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
-                    <h3 className="text-white font-medium mb-4">Financial Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">RSBSA Reference Number</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="RSBSA Reference Number" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">TIN Number</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="TIN Number" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Profession</label>
-                        <div className="relative">
-                          <select className="w-full h-10 px-3 py-2 bg-[#2a2a2a] border border-[#333333] rounded-md text-white appearance-none cursor-pointer">
-                            <option value="">Select Profession</option>
-                            <option value="farmer">Farmer</option>
-                            <option value="fisherfolk">Fisherfolk</option>
-                            <option value="farm_worker">Farm Worker</option>
-                            <option value="agri_youth">Agri-Youth</option>
-                            <option value="other">Other</option>
-                          </select>
-                          <i className="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-300 mb-1 block">Gross Salary</label>
-                        <Input className="bg-[#2a2a2a] border-[#333333] text-white" placeholder="Gross Salary" />
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <label className="text-sm font-medium text-gray-300 mb-1 block">Source of Funds</label>
-                      <div className="relative">
-                        <select className="w-full h-10 px-3 py-2 bg-[#2a2a2a] border border-[#333333] rounded-md text-white appearance-none cursor-pointer">
-                          <option value="">Select Source of Funds</option>
-                          <option value="salary">Salary</option>
-                          <option value="business">Business</option>
-                          <option value="remittance">Remittance</option>
-                          <option value="pension">Pension</option>
-                          <option value="investment">Investment</option>
-                          <option value="other">Other</option>
-                        </select>
-                        <i className="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                      </div>
-                    </div>
-                  </div>
+  const tabs = ['Personal Info', 'Address', 'Livelihood', 'Financial', 'Preview'];
 
-                  <div className="flex justify-between">
-                    <Button variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 !rounded-button whitespace-nowrap">
-                      <i className="fas fa-arrow-left mr-2"></i> Previous
-                    </Button>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white !rounded-button whitespace-nowrap">
-                      Next <i className="fas fa-arrow-right ml-2"></i>
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="review" className="mt-0">
-                <div className="space-y-6">
-                  <div className="bg-[#252525] p-4 rounded-md border border-[#333333]">
-                    <h3 className="text-white font-medium mb-4">Review Information</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-gray-300 font-medium mb-2">Personal Information</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Full Name:</span>
-                            <span className="text-white">Juan Dela Cruz</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Mother's Name:</span>
-                            <span className="text-white">Maria Dela Cruz</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">ID Number:</span>
-                            <span className="text-white">1234-5678-9012-3456</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">ID Type:</span>
-                            <span className="text-white">PhilSys ID</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Birthdate:</span>
-                            <span className="text-white">January 15, 1985</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Gender:</span>
-                            <span className="text-white">Male</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Mobile Number:</span>
-                            <span className="text-white">+63 912 345 6789</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Email:</span>
-                            <span className="text-white">juan.delacruz@example.com</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-[#333333] pt-4">
-                        <h4 className="text-gray-300 font-medium mb-2">Address Information</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                          <div>
-                            <h5 className="text-gray-400 text-sm mb-1">Permanent Address</h5>
-                            <p className="text-white">123 Main St., Brgy. San Isidro, Tacloban City, Leyte</p>
-                          </div>
-                          <div>
-                            <h5 className="text-gray-400 text-sm mb-1">Present Address</h5>
-                            <p className="text-white">123 Main St., Brgy. San Isidro, Tacloban City, Leyte</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-[#333333] pt-4">
-                        <h4 className="text-gray-300 font-medium mb-2">Farm/Fishery Information</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Registry Type:</span>
-                            <span className="text-white">Farmer</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Farm Parcels:</span>
-                            <span className="text-white">2</span>
-                          </div>
-                          <div className="flex flex-col md:col-span-2">
-                            <span className="text-gray-400 mb-1">Crops:</span>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge className="bg-green-900/50 text-green-300">Rice</Badge>
-                              <Badge className="bg-green-900/50 text-green-300">Corn</Badge>
-                              <Badge className="bg-green-900/50 text-green-300">Vegetables</Badge>
-                            </div>
-                          </div>
-                          <div className="flex flex-col md:col-span-2 mt-2">
-                            <span className="text-gray-400 mb-1">Animals:</span>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge className="bg-green-900/50 text-green-300">Carabao</Badge>
-                              <Badge className="bg-green-900/50 text-green-300">Chicken</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border-t border-[#333333] pt-4">
-                        <h4 className="text-gray-300 font-medium mb-2">Financial Information</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">RSBSA Number:</span>
-                            <span className="text-white">RS-2025-0006</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">TIN Number:</span>
-                            <span className="text-white">123-456-789-000</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Profession:</span>
-                            <span className="text-white">Farmer</span>
-                          </div>
-                          <div className="flex">
-                            <span className="text-gray-400 w-36">Source of Funds:</span>
-                            <span className="text-white">Farming</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <Button variant="outline" className="border-[#444444] bg-transparent hover:bg-[#333333] text-gray-300 !rounded-button whitespace-nowrap">
-                      <i className="fas fa-arrow-left mr-2"></i> Previous
-                    </Button>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white !rounded-button whitespace-nowrap">
-                      <i className="fas fa-check mr-2"></i> Submit Registration
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+  if (!role) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8">
+        <h1 className="text-2xl font-bold mb-4">Select Your Role</h1>
+        <div className="grid grid-cols-4 gap-4">
+          {roles.map(r => (
+            <div key={r} className="bg-gray-800 p-4 rounded cursor-pointer" onClick={() => { setRole(r); setFormData(prev => ({ ...prev, mainLivelihood: r })); }}>
+              <input type="radio" name="role" value={r} checked={role === r} readOnly />
+              <label className="ml-2">{r}</label>
+            </div>
+          ))}
+        </div>
       </div>
+    );
+  }
+
+  const renderTab = () => {
+    switch (step) {
+      case 0: // Personal Info
+        return (
+          <div className="space-y-4">
+            <label>Enrollment*: <select name="enrollment" value={formData.enrollment} onChange={updateFormData}><option>New</option><option>Existing</option></select></label>
+            <label>Surname*: <input name="surname" value={formData.surname} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>First Name*: <input name="firstName" value={formData.firstName} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Middle Name: <input name="middleName" value={formData.middleName} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Extension Name: <input name="extensionName" value={formData.extensionName} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Sex*: <input type="radio" name="sex" value="Male" checked={formData.sex === 'Male'} onChange={updateFormData} /> Male <input type="radio" name="sex" value="Female" checked={formData.sex === 'Female'} onChange={updateFormData} /> Female</label>
+            <label>Contact Number*: <input name="contactNumber" value={formData.contactNumber} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Date of Birth*: <input type="date" name="dob" value={formData.dob} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Place of Birth*: <input name="pob" value={formData.pob} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Religion: <input name="religion" value={formData.religion} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Highest Education*: <select name="education" value={formData.education} onChange={updateFormData}><option>None</option><option>Elementary</option><option>High School</option><option>Vocational</option><option>College</option><option>Post Graduate</option></select></label>
+            <label>PWD*: <input type="checkbox" name="pwd" checked={formData.pwd} onChange={updateFormData} /></label>
+            <label>Civil Status*: <select name="civilStatus" value={formData.civilStatus} onChange={updateFormData}><option>Single</option><option>Married</option><option>Widowed</option><option>Separated</option></select></label>
+            {formData.civilStatus === 'Married' && <label>Spouse Name*: <input name="spouseName" value={formData.spouseName} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>}
+            <label>Mother's Maiden Name*: <input name="motherMaidenName" value={formData.motherMaidenName} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>4P's Beneficiary*: <input type="checkbox" name="fourPs" checked={formData.fourPs} onChange={updateFormData} /></label>
+            {formData.fourPs && <label>Specify: <input name="fourPsSpecify" value={formData.fourPsSpecify} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>}
+            <label>Indigenous Group*: <input type="checkbox" name="indigenous" checked={formData.indigenous} onChange={updateFormData} /></label>
+            {formData.indigenous && <label>Specify: <input name="indigenousSpecify" value={formData.indigenousSpecify} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>}
+            <label>Government ID*: <input type="checkbox" name="govId" checked={formData.govId} onChange={updateFormData} /></label>
+            {formData.govId && <label>ID Number: <input name="govIdNumber" value={formData.govIdNumber} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>}
+            <label>Farmers Association*: <input type="checkbox" name="farmAssoc" checked={formData.farmAssoc} onChange={updateFormData} /></label>
+            {formData.farmAssoc && <label>Specify: <input name="farmAssocSpecify" value={formData.farmAssocSpecify} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>}
+            <label>Household Head*: <input type="checkbox" name="householdHead" checked={formData.householdHead} onChange={updateFormData} /></label>
+            {!formData.householdHead && (
+              <>
+                <label>Head Name*: <input name="householdHeadName" value={formData.householdHeadName} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+                <label>Relationship*: <input name="householdRelationship" value={formData.householdRelationship} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+              </>
+            )}
+            <label>No. Male*: <input type="number" name="householdMale" value={formData.householdMale} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>No. Female*: <input type="number" name="householdFemale" value={formData.householdFemale} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Emergency Contact: <input name="emergencyContact" value={formData.emergencyContact} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Emergency Number: <input name="emergencyNumber" value={formData.emergencyNumber} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+          </div>
+        );
+      case 1: // Address
+        return (
+          <div className="space-y-4">
+            <label>House No: <input name="addressHouseNo" value={formData.addressHouseNo} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Street: <input name="addressStreet" value={formData.addressStreet} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Barangay*: <input name="addressBarangay" value={formData.addressBarangay} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Municipality*: <input name="addressMunicipality" value={formData.addressMunicipality} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Province*: <input name="addressProvince" value={formData.addressProvince} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Region*: <input name="addressRegion" value={formData.addressRegion} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+          </div>
+        );
+      case 2: // Livelihood
+        if (role === 'Farmer' || role === 'Agri-Youth') {
+          return (
+            <div className="space-y-4">
+              <label>Rice: <input type="number" name="rice" value={formData.farmingActivities.rice} onChange={(e) => setFormData(prev => ({ ...prev, farmingActivities: { ...prev.farmingActivities, rice: e.target.value } }))} className="bg-gray-800 text-white p-2 rounded" /></label>
+              <label>Corn: <input type="number" name="corn" value={formData.farmingActivities.corn} onChange={(e) => setFormData(prev => ({ ...prev, farmingActivities: { ...prev.farmingActivities, corn: e.target.value } }))} className="bg-gray-800 text-white p-2 rounded" /></label>
+              <button onClick={addOtherCrop} className="bg-blue-600 p-2 rounded">Add Other Crop</button>
+              {formData.farmingActivities.otherCrops.map((crop, index) => (
+                <div key={index}>
+                  <label>Crop Name*: <input value={crop.name} onChange={(e) => updateOtherCrop(index, 'name', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Value*: <input type="number" value={crop.value} onChange={(e) => updateOtherCrop(index, 'value', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                </div>
+              ))}
+              <h3>Livestock</h3>
+              <button onClick={addLivestock} className="bg-blue-600 p-2 rounded">Add Livestock</button>
+              {formData.livestock.map((item, index) => (
+                <div key={index}>
+                  <label>Type*: <input value={item.type} onChange={(e) => updateLivestock(index, 'type', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Heads*: <input type="number" value={item.heads} onChange={(e) => updateLivestock(index, 'heads', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                </div>
+              ))}
+              <h3>Poultry</h3>
+              <button onClick={addPoultry} className="bg-blue-600 p-2 rounded">Add Poultry</button>
+              {formData.poultry.map((item, index) => (
+                <div key={index}>
+                  <label>Type*: <input value={item.type} onChange={(e) => updatePoultry(index, 'type', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Heads*: <input type="number" value={item.heads} onChange={(e) => updatePoultry(index, 'heads', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                </div>
+              ))}
+              <h3>Farm Parcels</h3>
+              {formData.farmParcels.map((parcel, index) => (
+                <div key={index} className="border p-4 rounded">
+                  <label>Location*: <input value={parcel.location} onChange={(e) => updateParcel(index, 'location', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Area (ha)*: <input type="number" value={parcel.area} onChange={(e) => updateParcel(index, 'area', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Doc No: <input value={parcel.docNo} onChange={(e) => updateParcel(index, 'docNo', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Ownership Type*: <select value={parcel.ownershipType} onChange={(e) => updateParcel(index, 'ownershipType', e.target.value)}><option>Registered Owner</option><option>Tenant</option><option>Lessee</option><option>Others</option></select></label>
+                  <label>Owner Name: <input value={parcel.ownerName} onChange={(e) => updateParcel(index, 'ownerName', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>ARB*: <input type="checkbox" checked={parcel.arb} onChange={(e) => updateParcel(index, 'arb', e.target.checked)} /></label>
+                  <label>Farm Type: <select value={parcel.farmType} onChange={(e) => updateParcel(index, 'farmType', e.target.value)}><option>1 - Irrigated</option><option>2 - Rainfed Upland</option><option>3 - Rainfed Lowland</option></select></label>
+                  <label>Organic*: <input type="checkbox" checked={parcel.organic} onChange={(e) => updateParcel(index, 'organic', e.target.checked)} /></label>
+                  <label>Commodity: <input value={parcel.commodity} onChange={(e) => updateParcel(index, 'commodity', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>No. Heads: <input type="number" value={parcel.heads} onChange={(e) => updateParcel(index, 'heads', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                  <label>Animal Type: <input value={parcel.animalType} onChange={(e) => updateParcel(index, 'animalType', e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                </div>
+              ))}
+            </div>
+          );
+        } else if (role === 'Farm Worker/Laborer') {
+          return (
+            <div className="space-y-4">
+              <label><input type="checkbox" name="workTypes" value="Land Preparation" onChange={(e) => {
+                let newTypes = [...formData.workTypes];
+                if (e.target.checked) newTypes.push(e.target.value); else newTypes = newTypes.filter(t => t !== e.target.value);
+                setFormData(prev => ({ ...prev, workTypes: newTypes }));
+              }} /> Land Preparation</label>
+              {/* Add other checkboxes for Planting, Cultivation, Harvesting */}
+              <button onClick={addWork} className="bg-blue-600 p-2 rounded">Add Other Work</button>
+              {formData.otherWork.map((work, index) => (
+                <div key={index}>
+                  <label>Other: <input value={work} onChange={(e) => updateWork(index, e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                </div>
+              ))}
+              <h3>Farm Parcels</h3>
+              {/* Same as above for parcels */}
+            </div>
+          );
+        } else if (role === 'Fisherfolk') {
+          return (
+            <div className="space-y-4">
+              <label><input type="checkbox" name="fishingTypes" value="Fish Capture" onChange={(e) => {
+                let newTypes = [...formData.fishingTypes];
+                if (e.target.checked) newTypes.push(e.target.value); else newTypes = newTypes.filter(t => t !== e.target.value);
+                setFormData(prev => ({ ...prev, fishingTypes: newTypes }));
+              }} /> Fish Capture</label>
+              {/* Add other checkboxes for Aquaculture, Gleaning, Fish Processing, Fish Vending */}
+              <button onClick={addFishing} className="bg-blue-600 p-2 rounded">Add Other Fishing</button>
+              {formData.otherFishing.map((fishing, index) => (
+                <div key={index}>
+                  <label>Other: <input value={fishing} onChange={(e) => updateFishing(index, e.target.value)} className="bg-gray-800 text-white p-2 rounded" /></label>
+                </div>
+              ))}
+              {/* No farm parcels */}
+            </div>
+          );
+        }
+      case 3: // Financial
+        return (
+          <div className="space-y-4">
+            <label>Gross Farming Income*: <input type="number" name="grossFarmingIncome" value={formData.grossFarmingIncome} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Gross Non-Farming Income*: <input type="number" name="grossNonFarmingIncome" value={formData.grossNonFarmingIncome} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>RSBSA Reference: <input name="rsbsaReference" value={formData.rsbsaReference} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>TIN Number: <input name="tinNumber" value={formData.tinNumber} onChange={updateFormData} className="bg-gray-800 text-white p-2 rounded" /></label>
+            <label>Profession: <select name="profession" value={formData.profession} onChange={updateFormData}><option>Farmer</option><option>Fisherfolk</option><option>Farm Laborer</option><option>Other</option></select></label>
+            <label>Source of Funds: <select name="sourceOfFunds" value={formData.sourceOfFunds} onChange={updateFormData}><option>Personal Savings</option><option>Bank Loan</option><option>Other</option></select></label>
+          </div>
+        );
+      case 4: // Preview
+        return (
+          <div>
+            <pre className="text-sm">{JSON.stringify(formData, null, 2)}</pre>
+            <button onClick={handleSubmit} className="bg-green-600 p-2 rounded">Submit</button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      <h1 className="text-2xl font-bold mb-4">RSBSA Enrollment Form - {role}</h1>
+      <div className="flex space-x-4 mb-4">
+        {tabs.map((tab, index) => (
+          <button key={index} className={`p-2 rounded ${step === index ? 'bg-blue-600' : 'bg-gray-700'}`} onClick={() => setStep(index)}>
+            {tab}
+          </button>
+        ))}
+      </div>
+      {renderTab()}
+      <div className="mt-4">
+        {step > 0 && <button onClick={() => setStep(step - 1)} className="bg-gray-600 p-2 rounded mr-2">Prev</button>}
+        {step < 4 && <button onClick={() => setStep(step + 1)} className="bg-blue-600 p-2 rounded">Next</button>}
+      </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-4 rounded">
+            <h2>Confirm Submit</h2>
+            <p>Are you sure?</p>
+            <button onClick={() => { setShowModal(false); /* submit logic */ }} className="bg-green-600 p-2 rounded">Yes</button>
+            <button onClick={() => setShowModal(false)} className="bg-red-600 p-2 rounded ml-2">No</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default RegisterPage;
+export default RsbsaForm;
