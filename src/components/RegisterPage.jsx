@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, User, MapPin, Tractor, DollarSign, FileCheck, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 
-const ModernRSBSAForm = () => {
+const RegisterPage = () => {
   const [activeTab, setActiveTab] = useState('personal');
   const [formData, setFormData] = useState({});
   const [additionalCrops, setAdditionalCrops] = useState([]);
@@ -739,5 +739,6 @@ const ModernRSBSAForm = () => {
 };
 
 export default RegisterPage;
+
 
 
