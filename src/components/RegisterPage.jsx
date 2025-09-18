@@ -1,629 +1,1280 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, User, MapPin, Tractor, DollarSign, FileCheck, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { Plus, Minus } from "lucide-react";
 
 const RegisterPage = () => {
+  const [registryType, setRegistryType] = useState('farmer');
   const [activeTab, setActiveTab] = useState('personal');
-  const [formData, setFormData] = useState({});
-  const [additionalCrops, setAdditionalCrops] = useState([]);
-  const [additionalLivestock, setAdditionalLivestock] = useState([]);
-  const [additionalPoultry, setAdditionalPoultry] = useState([]);
-  const [additionalWork, setAdditionalWork] = useState([]);
-  const [additionalFishing, setAdditionalFishing] = useState([]);
+  const [isHouseholdHead, setIsHouseholdHead] = useState(true);
+  const [civilStatus, setCivilStatus] = useState('');
+  const [sameAsPermAddress, setSameAsPermAddress] = useState(false);
+  const [hasGovId, setHasGovId] = useState(false);
+  const [isPwd, setIsPwd] = useState(false);
+  const [is4ps, setIs4ps] = useState(false);
+  const [isIndigenous, setIsIndigenous] = useState(false);
+  const [isMemberCoop, setIsMemberCoop] = useState(false);
+  
+  // Dynamic form arrays
+  const [farmParcels, setFarmParcels] = useState([{ id: 1 }]);
+  const [parcelInfo, setParcelInfo] = useState([{ id: 1 }]);
+  const [otherCrops, setOtherCrops] = useState([]);
+  const [livestock, setLivestock] = useState([]);
+  const [poultry, setPoultry] = useState([]);
+  const [fishingActivities, setFishingActivities] = useState([]);
+  const [workTypes, setWorkTypes] = useState([]);
+  const [involvementTypes, setInvolvementTypes] = useState([]);
 
-  const tabs = [
-    { id: 'personal', label: 'Personal Info', icon: User },
-    { id: 'address', label: 'Address', icon: MapPin },
-    { id: 'farm', label: 'Farm/Fishery', icon: Tractor },
-    { id: 'financial', label: 'Financial', icon: DollarSign },
-    { id: 'review', label: 'Review', icon: FileCheck }
-  ];
-
-  const updateFormData = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const addItem = (type, setter) => {
-    setter(prev => [...prev, { id: Date.now(), name: '', value: '' }]);
-  };
-
-  const removeItem = (type, id, setter) => {
-    setter(prev => prev.filter(item => item.id !== id));
-  };
-
-  const nextTab = () => {
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-    if (currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1].id);
+  const addFormItem = (setter, currentArray) => {
+    if (currentArray.length < 3) {
+      const newId = Math.max(...currentArray.map(item => item.id)) + 1;
+      setter([...currentArray, { id: newId }]);
     }
   };
 
-  const prevTab = () => {
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-    if (currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1].id);
+  const removeFormItem = (setter, currentArray, id) => {
+    if (currentArray.length > 1) {
+      setter(currentArray.filter(item => item.id !== id));
     }
   };
 
-  const FormInput = ({ label, type = "text", name, placeholder, required = false, className = "", ...props }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        className={`w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 hover:border-slate-300 ${className}`}
-        value={formData[name] || ''}
-        onChange={(e) => updateFormData(name, e.target.value)}
-        {...props}
-      />
-    </div>
-  );
+  const addParcelInfo = () => {
+    if (parcelInfo.length < 5) {
+      const newId = Math.max(...parcelInfo.map(item => item.id)) + 1;
+      setParcelInfo([...parcelInfo, { id: newId }]);
+    }
+  };
 
-  const FormSelect = ({ label, name, options, required = false, ...props }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <select
-        name={name}
-        className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 hover:border-slate-300 appearance-none cursor-pointer"
-        value={formData[name] || ''}
-        onChange={(e) => updateFormData(name, e.target.value)}
-        {...props}
-      >
-        {options.map(option => (
-          <option key={option.value} value={option.value}>{option.label}</option>
-        ))}
-      </select>
-    </div>
-  );
+  const removeParcelInfo = (id) => {
+    if (parcelInfo.length > 1) {
+      setParcelInfo(parcelInfo.filter(item => item.id !== id));
+    }
+  };
 
-  const RadioGroup = ({ label, name, options, required = false }) => (
-    <div className="space-y-3">
-      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="flex gap-4">
-        {options.map(option => (
-          <div key={option.value} className="flex items-center">
-            <input
-              type="radio"
-              id={`${name}-${option.value}`}
-              name={name}
-              value={option.value}
-              checked={formData[name] === option.value}
-              onChange={(e) => updateFormData(name, e.target.value)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300"
-            />
-            <label htmlFor={`${name}-${option.value}`} className="ml-2 text-slate-700">
-              {option.label}
-            </label>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const extensionOptions = ['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'];
+  const religionOptions = ['Christianity', 'Islam', 'Others'];
+  const civilStatusOptions = ['Single', 'Married', 'Widowed', 'Separated'];
+  const educationOptions = ['Pre-School', 'Elementary', 'High School (non-K12)', 'Junior High School (K-12)', 'Senior High School (K-12)', 'College', 'Vocational', 'Post-Graduate', 'None'];
+  const ownershipDocOptions = ['Certificate of Land Transfer', 'Emancipation Patent', 'Individual Certificate of Land Ownership Award (CLOA)', 'Collective CLOA', 'Co-ownership CLOA', 'Agricultural Sales Patent', 'Homestead Patent', 'Free Patent', 'Certificate of Title or Regular Title', 'Certificate of Ancestral Domain Title', 'Certificate of Ancestral Land Title', 'Tax Declaration', 'Others'];
+  const ownershipTypeOptions = ['Registered Owner', 'Tenant', 'Lessee', 'Others'];
+  const farmTypeOptions = ['Irrigated', 'Rainfed Upland', 'Rainfed Lowland'];
+  const cropCommodityOptions = ['Rice', 'Corn', 'HVC', 'Poultry', 'Agri-Fishery', 'Livestock'];
 
-  const renderPersonalInfo = () => (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <FormInput label="Surname" name="surname" placeholder="Last name" required />
-        <FormInput label="First Name" name="firstName" placeholder="First name" required />
-        <FormInput label="Middle Name" name="middleName" placeholder="Middle name" />
-        <FormInput label="Extension Name" name="extensionName" placeholder="Jr., Sr., III" />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <RadioGroup 
-          label="Sex" 
-          name="sex" 
-          options={[
-            { value: 'Male', label: 'Male' },
-            { value: 'Female', label: 'Female' }
-          ]} 
-          required 
-        />
-        <FormSelect 
-          label="Civil Status" 
-          name="civilStatus" 
-          options={[
-            { value: '', label: 'Select Civil Status' },
-            { value: 'Single', label: 'Single' },
-            { value: 'Married', label: 'Married' },
-            { value: 'Widowed', label: 'Widowed' },
-            { value: 'Separated', label: 'Separated' }
-          ]} 
-          required 
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Name of Spouse (if Married)" name="spouseName" placeholder="Spouse's full name" />
-        <FormInput label="Mother's Maiden Name" name="motherMaidenName" placeholder="Mother's maiden name" required />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Date of Birth" name="dob" type="date" required />
-        <FormInput label="Place of Birth" name="pob" placeholder="City, Province" required />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Religion" name="religion" placeholder="Religion" />
-        <FormSelect 
-          label="Highest Education" 
-          name="education" 
-          options={[
-            { value: '', label: 'Select Education Level' },
-            { value: 'None', label: 'None' },
-            { value: 'Elementary', label: 'Elementary' },
-            { value: 'High School', label: 'High School' },
-            { value: 'Vocational', label: 'Vocational' },
-            { value: 'College', label: 'College' },
-            { value: 'Post Graduate', label: 'Post Graduate' }
-          ]} 
-        />
-      </div>
-
-      <div className="space-y-6">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Additional Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RadioGroup 
-              label="Person with Disability (PWD)" 
-              name="pwd" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
-            <RadioGroup 
-              label="4P's Beneficiary" 
-              name="fourPs" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
-          </div>
-          {formData.fourPs === 'Yes' && (
-            <div className="mt-4">
-              <FormInput label="If Yes, Specify" name="fourPsSpecify" placeholder="Specify 4P's details" />
+  const renderRegistrySelector = () => (
+    <div className="bg-card p-4 rounded-md border border-border mb-6">
+      <h3 className="text-card-foreground font-medium mb-4">Select Registry Type</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { value: 'farmer', label: 'Farmer', desc: 'Register as a farmer with crop and animal production details', color: 'chart-1' },
+          { value: 'fisherfolk', label: 'Fisherfolk', desc: 'Register as a fisherfolk with fishing activities', color: 'chart-2' },
+          { value: 'farmworker', label: 'Farm Worker/Laborer', desc: 'Register as a farm worker or laborer', color: 'chart-3' },
+          { value: 'agriyouth', label: 'Agri-Youth', desc: 'Register as agri-youth participant', color: 'chart-4' }
+        ].map((type) => (
+          <div
+            key={type.value}
+            className={`border rounded-md p-4 cursor-pointer transition-colors ${
+              registryType === type.value
+                ? `border-${type.color} bg-${type.color}/20`
+                : 'border-border bg-card hover:bg-muted'
+            }`}
+            onClick={() => setRegistryType(type.value)}
+          >
+            <div className="flex items-center mb-2">
+              <input
+                type="radio"
+                checked={registryType === type.value}
+                onChange={() => setRegistryType(type.value)}
+                className={`h-4 w-4 text-${type.color}`}
+              />
+              <label className="ml-2 text-card-foreground font-medium">{type.label}</label>
             </div>
-          )}
+            <p className="text-muted-foreground text-sm">{type.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderPersonalInfoTab = () => (
+    <div className="space-y-6">
+      {/* Reference Number */}
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-1 block">Reference Number</label>
+        <Input className="bg-card border-border text-card-foreground" placeholder="00-00-00-000-000000" />
+      </div>
+
+      {/* Name Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Surname</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Surname" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">First Name</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="First Name" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Middle Name</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Middle Name" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Extension Name</label>
+          <select className="w-full h-10 px-3 py-2 bg-card border border-border rounded-md text-card-foreground">
+            <option value="">Select</option>
+            {extensionOptions.map(ext => (
+              <option key={ext} value={ext}>{ext}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Basic Info */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Sex</label>
+          <div className="flex gap-4 mt-2">
+            <div className="flex items-center">
+              <input type="radio" name="sex" value="male" className="h-4 w-4 text-primary" />
+              <label className="ml-2 text-muted-foreground">Male</label>
+            </div>
+            <div className="flex items-center">
+              <input type="radio" name="sex" value="female" className="h-4 w-4 text-primary" />
+              <label className="ml-2 text-muted-foreground">Female</label>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Mobile Number</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="+63 XXX XXX XXXX" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Landline Number</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Landline Number" />
+        </div>
+      </div>
+
+      {/* Birth Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Date of Birth</label>
+          <Input type="date" className="bg-card border-border text-card-foreground" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Place of Birth</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Municipality, Province/State, Country" />
+        </div>
+      </div>
+
+      {/* Religion and Civil Status */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Religion</label>
+          <select className="w-full h-10 px-3 py-2 bg-card border border-border rounded-md text-card-foreground">
+            <option value="">Select Religion</option>
+            {religionOptions.map(religion => (
+              <option key={religion} value={religion}>{religion}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Civil Status</label>
+          <select 
+            className="w-full h-10 px-3 py-2 bg-card border border-border rounded-md text-card-foreground"
+            value={civilStatus}
+            onChange={(e) => setCivilStatus(e.target.value)}
+          >
+            <option value="">Select Civil Status</option>
+            {civilStatusOptions.map(status => (
+              <option key={status} value={status}>{status}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Spouse Name (if married) */}
+      {civilStatus === 'Married' && (
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Name of Spouse</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Name of Spouse" />
+        </div>
+      )}
+
+      {/* Mother's Name */}
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-1 block">Mother's Full Name</label>
+        <Input className="bg-card border-border text-card-foreground" placeholder="Mother's Full Name" />
+      </div>
+
+      {/* Household Head */}
+      <div className="bg-card p-4 rounded-md border border-border">
+        <div className="mb-4">
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">Household Head</label>
+          <div className="flex gap-4">
+            <div className="flex items-center">
+              <input 
+                type="radio" 
+                name="householdHead" 
+                checked={isHouseholdHead} 
+                onChange={() => setIsHouseholdHead(true)}
+                className="h-4 w-4 text-primary" 
+              />
+              <label className="ml-2 text-muted-foreground">Yes</label>
+            </div>
+            <div className="flex items-center">
+              <input 
+                type="radio" 
+                name="householdHead" 
+                checked={!isHouseholdHead}
+                onChange={() => setIsHouseholdHead(false)}
+                className="h-4 w-4 text-primary" 
+              />
+              <label className="ml-2 text-muted-foreground">No</label>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Membership & Identification</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RadioGroup 
-              label="Member of Indigenous Group" 
+        {!isHouseholdHead && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Name of Household Head</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Name of Household Head" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Relationship</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Relationship" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">No. of Living Household Members</label>
+                <Input type="number" className="bg-muted border-border text-card-foreground" min="1" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">No. of Males</label>
+                <Input type="number" className="bg-muted border-border text-card-foreground" min="0" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">No. of Females</label>
+                <Input type="number" className="bg-muted border-border text-card-foreground" min="0" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Education */}
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-1 block">Highest Formal Education</label>
+        <select className="w-full h-10 px-3 py-2 bg-card border border-border rounded-md text-card-foreground">
+          <option value="">Select Education Level</option>
+          {educationOptions.map(edu => (
+            <option key={edu} value={edu}>{edu}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Status Questions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">Person with Disability (PWD)</label>
+          <div className="flex gap-4">
+            <div className="flex items-center">
+              <input 
+                type="radio" 
+                name="pwd" 
+                checked={isPwd} 
+                onChange={() => setIsPwd(true)}
+                className="h-4 w-4 text-primary" 
+              />
+              <label className="ml-2 text-muted-foreground">Yes</label>
+            </div>
+            <div className="flex items-center">
+              <input 
+                type="radio" 
+                name="pwd" 
+                checked={!isPwd}
+                onChange={() => setIsPwd(false)}
+                className="h-4 w-4 text-primary" 
+              />
+              <label className="ml-2 text-muted-foreground">No</label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-2 block">4P's Beneficiary</label>
+          <div className="flex gap-4">
+            <div className="flex items-center">
+              <input 
+                type="radio" 
+                name="fourps" 
+                checked={is4ps} 
+                onChange={() => setIs4ps(true)}
+                className="h-4 w-4 text-primary" 
+              />
+              <label className="ml-2 text-muted-foreground">Yes</label>
+            </div>
+            <div className="flex items-center">
+              <input 
+                type="radio" 
+                name="fourps" 
+                checked={!is4ps}
+                onChange={() => setIs4ps(false)}
+                className="h-4 w-4 text-primary" 
+              />
+              <label className="ml-2 text-muted-foreground">No</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Indigenous Group */}
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-2 block">Member of Indigenous Group</label>
+        <div className="flex gap-4 mb-2">
+          <div className="flex items-center">
+            <input 
+              type="radio" 
               name="indigenous" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
+              checked={isIndigenous} 
+              onChange={() => setIsIndigenous(true)}
+              className="h-4 w-4 text-primary" 
             />
-            <RadioGroup 
-              label="With Government ID" 
-              name="govId" 
-              options={[
-                { value: 'Yes', label: 'Yes' },
-                { value: 'No', label: 'No' }
-              ]} 
-            />
+            <label className="ml-2 text-muted-foreground">Yes</label>
           </div>
-          {formData.indigenous === 'Yes' && (
-            <div className="mt-4">
-              <FormInput label="If Yes, Specify Indigenous Group" name="indigenousSpecify" placeholder="Specify indigenous group" />
-            </div>
-          )}
-          {formData.govId === 'Yes' && (
-            <div className="mt-4">
-              <FormInput label="Government ID Number" name="govIdNumber" placeholder="ID Number" />
-            </div>
-          )}
+          <div className="flex items-center">
+            <input 
+              type="radio" 
+              name="indigenous" 
+              checked={!isIndigenous}
+              onChange={() => setIsIndigenous(false)}
+              className="h-4 w-4 text-primary" 
+            />
+            <label className="ml-2 text-muted-foreground">No</label>
+          </div>
         </div>
+        {isIndigenous && (
+          <Input className="bg-card border-border text-card-foreground" placeholder="Specify Indigenous Group Name" />
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormInput label="Contact Number" name="contactNumber" placeholder="+63 XXX XXX XXXX" />
-        <FormInput label="Emergency Contact Person" name="emergencyContact" placeholder="Full name" />
+      {/* Government ID */}
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-2 block">With Government ID</label>
+        <div className="flex gap-4 mb-4">
+          <div className="flex items-center">
+            <input 
+              type="radio" 
+              name="govid" 
+              checked={hasGovId} 
+              onChange={() => setHasGovId(true)}
+              className="h-4 w-4 text-primary" 
+            />
+            <label className="ml-2 text-muted-foreground">Yes</label>
+          </div>
+          <div className="flex items-center">
+            <input 
+              type="radio" 
+              name="govid" 
+              checked={!hasGovId}
+              onChange={() => setHasGovId(false)}
+              className="h-4 w-4 text-primary" 
+            />
+            <label className="ml-2 text-muted-foreground">No</label>
+          </div>
+        </div>
+        {hasGovId && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">ID Type</label>
+              <Input className="bg-card border-border text-card-foreground" placeholder="ID Type" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">ID Number</label>
+              <Input className="bg-card border-border text-card-foreground" placeholder="ID Number" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Cooperative Member */}
+      <div>
+        <label className="text-sm font-medium text-muted-foreground mb-2 block">Member of any Farmers Association/Cooperative</label>
+        <div className="flex gap-4 mb-2">
+          <div className="flex items-center">
+            <input 
+              type="radio" 
+              name="coop" 
+              checked={isMemberCoop} 
+              onChange={() => setIsMemberCoop(true)}
+              className="h-4 w-4 text-primary" 
+            />
+            <label className="ml-2 text-muted-foreground">Yes</label>
+          </div>
+          <div className="flex items-center">
+            <input 
+              type="radio" 
+              name="coop" 
+              checked={!isMemberCoop}
+              onChange={() => setIsMemberCoop(false)}
+              className="h-4 w-4 text-primary" 
+            />
+            <label className="ml-2 text-muted-foreground">No</label>
+          </div>
+        </div>
+        {isMemberCoop && (
+          <Input className="bg-card border-border text-card-foreground" placeholder="Specify Association/Cooperative Name" />
+        )}
+      </div>
+
+      {/* Emergency Contact */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Person to Notify in Case of Emergency</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Emergency Contact Name" />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-muted-foreground mb-1 block">Contact Number</label>
+          <Input className="bg-card border-border text-card-foreground" placeholder="Contact Number" />
+        </div>
       </div>
     </div>
   );
 
-  const renderAddress = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-8 rounded-2xl border border-slate-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-blue-600" />
-          Address Information
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FormInput label="House/Lot/Building No." name="houseNo" placeholder="House number" />
-          <FormInput label="Street/Sitio/Subdivision" name="street" placeholder="Street name" />
-          <FormInput label="Barangay" name="barangay" placeholder="Barangay" required />
-          <FormInput label="Municipality/City" name="municipality" placeholder="Municipality/City" required />
-          <FormInput label="Province" name="province" placeholder="Province" required />
-          <FormInput label="Region" name="region" placeholder="Region" required />
+  const renderAddressTab = () => (
+    <div className="space-y-6">
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Permanent Address</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">House/Lot/Bldg. No/Purok</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="House/Lot/Bldg. No/Purok" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Street/Sitio/Subdv.</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="Street/Sitio/Subdv." />
+          </div>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Barangay</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="Barangay" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Municipality/City</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="Municipality/City" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Province</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="Province" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Region</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="Region" />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-card p-4 rounded-md border border-border">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-card-foreground font-medium">Present Address</h3>
+          <div className="flex items-center">
+            <input 
+              type="checkbox" 
+              id="sameAddress" 
+              checked={sameAsPermAddress}
+              onChange={(e) => setSameAsPermAddress(e.target.checked)}
+              className="h-4 w-4 text-primary" 
+            />
+            <label htmlFor="sameAddress" className="ml-2 text-muted-foreground text-sm">Same as Permanent Address</label>
+          </div>
+        </div>
+        {!sameAsPermAddress && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">House/Lot/Bldg. No/Purok</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="House/Lot/Bldg. No/Purok" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Street/Sitio/Subdv.</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Street/Sitio/Subdv." />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Barangay</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Barangay" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Municipality/City</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Municipality/City" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Province</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Province" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Region</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Region" />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 
-  const renderFarmFishery = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6">Main Livelihood</h3>
-        <FormSelect 
-          label="Select Main Livelihood" 
-          name="mainLivelihood" 
-          options={[
-            { value: '', label: 'Select Livelihood' },
-            { value: 'Farmer', label: 'Farmer' },
-            { value: 'Farmworker/Laborer', label: 'Farmworker/Laborer' },
-            { value: 'Fisherfolk', label: 'Fisherfolk' }
-          ]} 
-          required 
-        />
-      </div>
-
-      {formData.mainLivelihood === 'Farmer' && (
-        <div className="space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-            <h4 className="text-lg font-semibold text-slate-800 mb-6">Farming Activities</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <FormInput label="Rice Area (ha)" name="riceValue" type="number" placeholder="0.0" />
-              <FormInput label="Corn Area (ha)" name="cornValue" type="number" placeholder="0.0" />
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h5 className="font-semibold text-slate-700">Other Crops</h5>
-                <Button
-                  type="button"
-                  onClick={() => addItem('crops', setAdditionalCrops)}
-                  className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4 py-2"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Crop
-                </Button>
-              </div>
-              {additionalCrops.map((crop) => (
-                <div key={crop.id} className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <FormInput label="Crop Name" placeholder="Crop name" />
-                  </div>
-                  <div className="flex-1">
-                    <FormInput label="Area (ha)" type="number" placeholder="0.0" />
-                  </div>
-                  <Button
-                    type="button"
-                    onClick={() => removeItem('crops', crop.id, setAdditionalCrops)}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                    size="sm"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+  const renderFarmDataTab = () => (
+    <div className="space-y-6">
+      {/* Farming Activity Form */}
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Farming Activity</h3>
+        
+        {/* Main Crops */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="flex items-center space-x-3">
+            <input type="checkbox" className="h-4 w-4 text-chart-1" />
+            <label className="text-muted-foreground">Rice</label>
+            <Input className="bg-muted border-border text-card-foreground w-24" placeholder="Value" />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h5 className="font-semibold text-slate-700">Livestock</h5>
-                <Button
-                  type="button"
-                  onClick={() => addItem('livestock', setAdditionalLivestock)}
-                  className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-3 py-1 text-sm"
-                >
-                  <Plus className="h-3 w-3 mr-1" /> Add
-                </Button>
-              </div>
-              {additionalLivestock.map((animal) => (
-                <div key={animal.id} className="flex gap-2 items-end mb-3">
-                  <FormInput placeholder="Type" className="text-sm" />
-                  <FormInput type="number" placeholder="Heads" className="text-sm" />
-                  <Button
-                    type="button"
-                    onClick={() => removeItem('livestock', animal.id, setAdditionalLivestock)}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                    size="sm"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h5 className="font-semibold text-slate-700">Poultry</h5>
-                <Button
-                  type="button"
-                  onClick={() => addItem('poultry', setAdditionalPoultry)}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-full px-3 py-1 text-sm"
-                >
-                  <Plus className="h-3 w-3 mr-1" /> Add
-                </Button>
-              </div>
-              {additionalPoultry.map((bird) => (
-                <div key={bird.id} className="flex gap-2 items-end mb-3">
-                  <FormInput placeholder="Type" className="text-sm" />
-                  <FormInput type="number" placeholder="Heads" className="text-sm" />
-                  <Button
-                    type="button"
-                    onClick={() => removeItem('poultry', bird.id, setAdditionalPoultry)}
-                    className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
-                    size="sm"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+          <div className="flex items-center space-x-3">
+            <input type="checkbox" className="h-4 w-4 text-chart-1" />
+            <label className="text-muted-foreground">Corn</label>
+            <Input className="bg-muted border-border text-card-foreground w-24" placeholder="Value" />
           </div>
         </div>
-      )}
 
-      {formData.mainLivelihood === 'Farmworker/Laborer' && (
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 className="text-lg font-semibold text-slate-800 mb-6">Kind of Work</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {['Land Preparation', 'Planting/Transplanting', 'Cultivation', 'Harvesting'].map(work => (
-              <label key={work} className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 text-blue-600 rounded" />
-                <span className="text-slate-700">{work}</span>
-              </label>
-            ))}
+        {/* Other Crops */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-muted-foreground font-medium">Other Crops</h4>
+            <Button 
+              type="button"
+              onClick={() => addFormItem(setOtherCrops, otherCrops)}
+              className="bg-chart-1 hover:bg-chart-1/80 text-card-foreground px-3 py-1 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Crop
+            </Button>
           </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h5 className="font-semibold text-slate-700">Other Work Types</h5>
-              <Button
+          {otherCrops.map((crop) => (
+            <div key={crop.id} className="flex items-center gap-3 mb-2">
+              <Input className="bg-muted border-border text-card-foreground flex-1" placeholder="Specify Crop" />
+              <Input className="bg-muted border-border text-card-foreground w-24" placeholder="Value" />
+              <Button 
                 type="button"
-                onClick={() => addItem('work', setAdditionalWork)}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 py-2"
-                size="sm"
+                onClick={() => removeFormItem(setOtherCrops, otherCrops, crop.id)}
+                className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1"
               >
-                <Plus className="h-4 w-4 mr-1" /> Add Work
+                <Minus className="h-3 w-3" />
               </Button>
-            </div>
-            {additionalWork.map((work) => (
-              <div key={work.id} className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <FormInput placeholder="Work type" />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => removeItem('work', work.id, setAdditionalWork)}
-                  className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                  size="sm"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {formData.mainLivelihood === 'Fisherfolk' && (
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h4 className="text-lg font-semibold text-slate-800 mb-6">Type of Fishing Activity</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {['Fish Capture', 'Aquaculture', 'Gleaning', 'Fish Processing', 'Fish Vending'].map(activity => (
-              <label key={activity} className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 text-blue-600 rounded" />
-                <span className="text-slate-700">{activity}</span>
-              </label>
-            ))}
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h5 className="font-semibold text-slate-700">Other Fishing Activities</h5>
-              <Button
-                type="button"
-                onClick={() => addItem('fishing', setAdditionalFishing)}
-                className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-full px-4 py-2"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-1" /> Add Activity
-              </Button>
-            </div>
-            {additionalFishing.map((activity) => (
-              <div key={activity.id} className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <FormInput placeholder="Fishing activity" />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => removeItem('fishing', activity.id, setAdditionalFishing)}
-                  className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2"
-                  size="sm"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {(formData.mainLivelihood === 'Farmer' || formData.mainLivelihood === 'Farmworker/Laborer') && (
-        <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-8 rounded-2xl border border-emerald-200">
-          <h4 className="text-xl font-semibold text-slate-800 mb-6">Farm Parcels</h4>
-          {[1, 2, 3].map(parcelNum => (
-            <div key={parcelNum} className="bg-white p-6 rounded-xl border border-slate-200 mb-6 shadow-sm">
-              <h5 className="text-lg font-semibold text-slate-700 mb-4">Parcel {parcelNum}</h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <FormInput label="Location (Barangay & Municipality)" name={`parcel${parcelNum}Location`} placeholder="Location details" />
-                <FormInput label="Total Area (ha)" name={`parcel${parcelNum}Area`} type="number" placeholder="0.0" />
-                <FormInput label="Ownership Document No" name={`parcel${parcelNum}DocNo`} placeholder="Document number" />
-                <FormSelect 
-                  label="Ownership Type" 
-                  name={`parcel${parcelNum}Ownership`}
-                  options={[
-                    { value: '', label: 'Select Ownership Type' },
-                    { value: 'Registered Owner', label: 'Registered Owner' },
-                    { value: 'Tenant', label: 'Tenant' },
-                    { value: 'Lessee', label: 'Lessee' },
-                    { value: 'Others', label: 'Others' }
-                  ]} 
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput label="Land Owner Name (if Tenant/Lessee)" name={`parcel${parcelNum}OwnerName`} placeholder="Land owner name" />
-                <FormSelect 
-                  label="Farm Type" 
-                  name={`parcel${parcelNum}FarmType`}
-                  options={[
-                    { value: '', label: 'Select Farm Type' },
-                    { value: '1 - Irrigated', label: '1 - Irrigated' },
-                    { value: '2 - Rainfed Upland', label: '2 - Rainfed Upland' },
-                    { value: '3 - Rainfed Lowland', label: '3 - Rainfed Lowland' }
-                  ]} 
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <RadioGroup 
-                  label="Agrarian Reform Beneficiary (ARB)" 
-                  name={`parcel${parcelNum}ARB`}
-                  options={[
-                    { value: 'Yes', label: 'Yes' },
-                    { value: 'No', label: 'No' }
-                  ]} 
-                />
-                <RadioGroup 
-                  label="Organic Practitioner" 
-                  name={`parcel${parcelNum}Organic`}
-                  options={[
-                    { value: 'Y', label: 'Yes' },
-                    { value: 'N', label: 'No' }
-                  ]} 
-                />
-                <FormInput label="Crop/Commodity" name={`parcel${parcelNum}Commodity`} placeholder="Main crop" />
-              </div>
             </div>
           ))}
         </div>
-      )}
+
+        {/* Livestock */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-muted-foreground font-medium">Livestock</h4>
+            <Button 
+              type="button"
+              onClick={() => addFormItem(setLivestock, livestock)}
+              className="bg-chart-1 hover:bg-chart-1/80 text-card-foreground px-3 py-1 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Livestock
+            </Button>
+          </div>
+          {livestock.map((animal) => (
+            <div key={animal.id} className="flex items-center gap-3 mb-2">
+              <Input className="bg-muted border-border text-card-foreground flex-1" placeholder="Specify Livestock" />
+              <Input className="bg-muted border-border text-card-foreground w-32" placeholder="No. of Head" type="number" />
+              <Button 
+                type="button"
+                onClick={() => removeFormItem(setLivestock, livestock, animal.id)}
+                className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* Poultry */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-muted-foreground font-medium">Poultry</h4>
+            <Button 
+              type="button"
+              onClick={() => addFormItem(setPoultry, poultry)}
+              className="bg-chart-1 hover:bg-chart-1/80 text-card-foreground px-3 py-1 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Poultry
+            </Button>
+          </div>
+          {poultry.map((bird) => (
+            <div key={bird.id} className="flex items-center gap-3 mb-2">
+              <Input className="bg-muted border-border text-card-foreground flex-1" placeholder="Specify Poultry" />
+              <Input className="bg-muted border-border text-card-foreground w-32" placeholder="No. of Head" type="number" />
+              <Button 
+                type="button"
+                onClick={() => removeFormItem(setPoultry, poultry, bird.id)}
+                className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Farm Parcel Forms */}
+      <div className="bg-card p-4 rounded-md border border-border">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-card-foreground font-medium">Farm Parcels (Max 3)</h3>
+          <Button 
+            type="button"
+            onClick={() => addFormItem(setFarmParcels, farmParcels)}
+            disabled={farmParcels.length >= 3}
+            className="bg-primary hover:bg-primary/80 text-primary-foreground px-3 py-1 text-xs disabled:opacity-50"
+          >
+            <Plus className="h-3 w-3 mr-1" /> Add Parcel
+          </Button>
+        </div>
+
+        {farmParcels.map((parcel, index) => (
+          <div key={parcel.id} className="border border-border rounded-md p-4 mb-4 bg-muted">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-muted-foreground font-medium">Farm Parcel {index + 1}</h4>
+              {farmParcels.length > 1 && (
+                <Button 
+                  type="button"
+                  onClick={() => removeFormItem(setFarmParcels, farmParcels, parcel.id)}
+                  className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1 text-xs"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Name of Farmer's in Rotation</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Name of Farmer's in Rotation" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">Farm Location</label>
+                  <Input className="bg-muted border-border text-card-foreground" placeholder="Barangay, City/Municipality" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">Total Farm Area (ha)</label>
+                  <Input className="bg-muted border-border text-card-foreground" placeholder="Total Farm Area" type="number" step="0.01" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">Ownership Document</label>
+                  <select className="w-full h-10 px-3 py-2 bg-muted border border-border rounded-md text-card-foreground">
+                    <option value="">Select Document</option>
+                    {ownershipDocOptions.map(doc => (
+                      <option key={doc} value={doc}>{doc}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-1 block">Ownership Document No.</label>
+                  <Input className="bg-muted border-border text-card-foreground" placeholder="Document Number" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Ownership Type</label>
+                <select className="w-full h-10 px-3 py-2 bg-muted border border-border rounded-md text-card-foreground">
+                  <option value="">Select Ownership Type</option>
+                  {ownershipTypeOptions.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Within Ancestral Domain</label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center">
+                      <input type="radio" name={`ancestral_${parcel.id}`} className="h-4 w-4 text-primary" />
+                      <label className="ml-2 text-muted-foreground">Yes</label>
+                    </div>
+                    <div className="flex items-center">
+                      <input type="radio" name={`ancestral_${parcel.id}`} className="h-4 w-4 text-primary" />
+                      <label className="ml-2 text-muted-foreground">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Agrarian Reform Beneficiary</label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center">
+                      <input type="radio" name={`reform_${parcel.id}`} className="h-4 w-4 text-primary" />
+                      <label className="ml-2 text-muted-foreground">Yes</label>
+                    </div>
+                    <div className="flex items-center">
+                      <input type="radio" name={`reform_${parcel.id}`} className="h-4 w-4 text-primary" />
+                      <label className="ml-2 text-muted-foreground">No</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Farm Parcel Information */}
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="text-muted-foreground font-medium">Farm Parcel Information (Max 5)</h5>
+                  <Button 
+                    type="button"
+                    onClick={addParcelInfo}
+                    disabled={parcelInfo.length >= 5}
+                    className="bg-chart-1 hover:bg-chart-1/80 text-card-foreground px-2 py-1 text-xs disabled:opacity-50"
+                  >
+                    <Plus className="h-3 w-3 mr-1" /> Add Info
+                  </Button>
+                </div>
+
+                {parcelInfo.map((info, infoIndex) => (
+                  <div key={info.id} className="border border-border rounded-md p-3 mb-3 bg-muted">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-muted-foreground text-sm font-medium">Parcel Info {infoIndex + 1}</span>
+                      {parcelInfo.length > 1 && (
+                        <Button 
+                          type="button"
+                          onClick={() => removeParcelInfo(info.id)}
+                          className="bg-destructive hover:bg-destructive/80 text-card-foreground px-1 py-1 text-xs"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">Crop/Commodity</label>
+                        <select className="w-full h-8 px-2 py-1 bg-muted border border-border rounded text-card-foreground text-sm">
+                          <option value="">Select</option>
+                          {cropCommodityOptions.map(crop => (
+                            <option key={crop} value={crop}>{crop}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">Size (ha)</label>
+                        <Input className="bg-muted border-border text-card-foreground h-8 text-sm" type="number" step="0.01" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">No. of Head</label>
+                        <Input className="bg-muted border-border text-card-foreground h-8 text-sm" type="number" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">Farm Type</label>
+                        <select className="w-full h-8 px-2 py-1 bg-muted border border-border rounded text-card-foreground text-sm">
+                          <option value="">Select</option>
+                          {farmTypeOptions.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-2 block">Organic Practitioner</label>
+                        <div className="flex gap-3">
+                          <div className="flex items-center">
+                            <input type="radio" name={`organic_${info.id}`} className="h-3 w-3 text-primary" />
+                            <label className="ml-1 text-muted-foreground text-sm">Y</label>
+                          </div>
+                          <div className="flex items-center">
+                            <input type="radio" name={`organic_${info.id}`} className="h-3 w-3 text-primary" />
+                            <label className="ml-1 text-muted-foreground text-sm">N</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground mb-1 block">Remarks</label>
+                        <Input className="bg-muted border-border text-card-foreground h-8 text-sm" placeholder="Remarks" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
-  const renderFinancial = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-green-600" />
-          Financial Information
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormInput label="RSBSA Reference Number" name="rsbsaReference" placeholder="RSBSA Reference Number" />
-          <FormInput label="TIN Number" name="tinNumber" placeholder="TIN Number" />
-          <FormSelect 
-            label="Profession" 
-            name="profession"
-            options={[
-              { value: '', label: 'Select Profession' },
-              { value: 'Farmer', label: 'Farmer' },
-              { value: 'Fisherfolk', label: 'Fisherfolk' },
-              { value: 'Farm Laborer', label: 'Farm Laborer' },
-              { value: 'Agricultural Technician', label: 'Agricultural Technician' },
-              { value: 'Agronomist', label: 'Agronomist' },
-              { value: 'Horticulturist', label: 'Horticulturist' },
-              { value: 'Agricultural Engineer', label: 'Agricultural Engineer' },
-              { value: 'Other', label: 'Other' }
-            ]} 
-          />
-          <FormSelect 
-            label="Source of Funds" 
-            name="sourceOfFunds"
-            options={[
-              { value: '', label: 'Select Source of Funds' },
-              { value: 'Personal Savings', label: 'Personal Savings' },
-              { value: 'Bank Loan', label: 'Bank Loan' },
-              { value: 'Cooperative Loan', label: 'Cooperative Loan' },
-              { value: 'Government Subsidy', label: 'Government Subsidy' },
-              { value: 'Informal Lender', label: 'Informal Lender' },
-              { value: 'Microfinance NGO', label: 'Microfinance NGO' },
-              { value: 'Other', label: 'Other' }
-            ]} 
-          />
+  const renderFishDataTab = () => (
+    <div className="space-y-6">
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Type of Fishing Activity</h3>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          {['Fish Capture', 'Aquaculture', 'Gleaning', 'Fish Processing', 'Fish Vending'].map((activity) => (
+            <div key={activity} className="flex items-center">
+              <input type="checkbox" className="h-4 w-4 text-chart-2" />
+              <label className="ml-2 text-muted-foreground">{activity}</label>
+            </div>
+          ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <FormInput 
-            label="Gross Annual Income Last Year (Farming)" 
-            name="grossFarmingIncome" 
-            type="number" 
-            placeholder="0.00" 
-          />
-          <FormInput 
-            label="Gross Annual Income Last Year (Non-Farming)" 
-            name="grossNonFarmingIncome" 
-            type="number" 
-            placeholder="0.00" 
-          />
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-muted-foreground font-medium">Other Activities</h4>
+            <Button 
+              type="button"
+              onClick={() => addFormItem(setFishingActivities, fishingActivities)}
+              className="bg-chart-2 hover:bg-chart-2/80 text-card-foreground px-3 py-1 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Activity
+            </Button>
+          </div>
+          {fishingActivities.map((activity) => (
+            <div key={activity.id} className="flex items-center gap-3 mb-2">
+              <Input className="bg-muted border-border text-card-foreground flex-1" placeholder="Specify Activity" />
+              <Button 
+                type="button"
+                onClick={() => removeFormItem(setFishingActivities, fishingActivities, activity.id)}
+                className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 
-  const renderReview = () => (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200">
-        <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-          <FileCheck className="h-5 w-5 text-green-600" />
-          Review Information
-        </h3>
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <p className="text-slate-600 text-center py-8">
-            Please review all information carefully before submitting your RSBSA registration.
-            Make sure all details are accurate and complete.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Personal Information</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>Name:</strong> {formData.surname || 'N/A'}, {formData.firstName || 'N/A'} {formData.middleName || ''}</p>
-                <p><strong>Sex:</strong> {formData.sex || 'N/A'}</p>
-                <p><strong>Civil Status:</strong> {formData.civilStatus || 'N/A'}</p>
-                <p><strong>Date of Birth:</strong> {formData.dob || 'N/A'}</p>
-                <p><strong>Contact:</strong> {formData.contactNumber || 'N/A'}</p>
+  const renderFarmWorkerTab = () => (
+    <div className="space-y-6">
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Kind of Work</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          {['Land Preparation', 'Planting/Transplanting', 'Cultivation', 'Harvesting'].map((work) => (
+            <div key={work} className="flex items-center">
+              <input type="checkbox" className="h-4 w-4 text-chart-3" />
+              <label className="ml-2 text-muted-foreground">{work}</label>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-muted-foreground font-medium">Other Work Types</h4>
+            <Button 
+              type="button"
+              onClick={() => addFormItem(setWorkTypes, workTypes)}
+              className="bg-chart-3 hover:bg-chart-3/80 text-card-foreground px-3 py-1 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Work Type
+            </Button>
+          </div>
+          {workTypes.map((work) => (
+            <div key={work.id} className="flex items-center gap-3 mb-2">
+              <Input className="bg-muted border-border text-card-foreground flex-1" placeholder="Specify Work Type" />
+              <Button 
+                type="button"
+                onClick={() => removeFormItem(setWorkTypes, workTypes, work.id)}
+                className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Farm Parcel Forms for Farm Worker */}
+      <div className="bg-card p-4 rounded-md border border-border">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-card-foreground font-medium">Work Location Parcels (Max 3)</h3>
+          <Button 
+            type="button"
+            onClick={() => addFormItem(setFarmParcels, farmParcels)}
+            disabled={farmParcels.length >= 3}
+            className="bg-chart-3 hover:bg-chart-3/80 text-card-foreground px-3 py-1 text-xs disabled:opacity-50"
+          >
+            <Plus className="h-3 w-3 mr-1" /> Add Parcel
+          </Button>
+        </div>
+
+        {farmParcels.map((parcel, index) => (
+          <div key={parcel.id} className="border border-border rounded-md p-4 mb-4 bg-muted">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-muted-foreground font-medium">Work Parcel {index + 1}</h4>
+              {farmParcels.length > 1 && (
+                <Button 
+                  type="button"
+                  onClick={() => removeFormItem(setFarmParcels, farmParcels, parcel.id)}
+                  className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1 text-xs"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Farm Location</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Barangay, City/Municipality" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Farm Owner</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Farm Owner Name" />
               </div>
             </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Address</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>Barangay:</strong> {formData.barangay || 'N/A'}</p>
-                <p><strong>Municipality:</strong> {formData.municipality || 'N/A'}</p>
-                <p><strong>Province:</strong> {formData.province || 'N/A'}</p>
-                <p><strong>Region:</strong> {formData.region || 'N/A'}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderAgriYouthTab = () => (
+    <div className="space-y-6">
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Type of Involvement</h3>
+        
+        <div className="space-y-3 mb-4">
+          {[
+            'Part of farming household',
+            'Attending/attended formal agri-fishery related course',
+            'Attending/attended non-formal agri-fishery related course',
+            'Participated in any agricultural activity/program'
+          ].map((involvement) => (
+            <div key={involvement} className="flex items-center">
+              <input type="checkbox" className="h-4 w-4 text-chart-4" />
+              <label className="ml-2 text-muted-foreground">{involvement}</label>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-muted-foreground font-medium">Other Involvement Types</h4>
+            <Button 
+              type="button"
+              onClick={() => addFormItem(setInvolvementTypes, involvementTypes)}
+              className="bg-chart-4 hover:bg-chart-4/80 text-card-foreground px-3 py-1 text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Type
+            </Button>
+          </div>
+          {involvementTypes.map((type) => (
+            <div key={type.id} className="flex items-center gap-3 mb-2">
+              <Input className="bg-muted border-border text-card-foreground flex-1" placeholder="Specify Involvement Type" />
+              <Button 
+                type="button"
+                onClick={() => removeFormItem(setInvolvementTypes, involvementTypes, type.id)}
+                className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Farm Parcel Forms for Agri-Youth */}
+      <div className="bg-card p-4 rounded-md border border-border">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-card-foreground font-medium">Activity Location Parcels (Max 3)</h3>
+          <Button 
+            type="button"
+            onClick={() => addFormItem(setFarmParcels, farmParcels)}
+            disabled={farmParcels.length >= 3}
+            className="bg-chart-4 hover:bg-chart-4/80 text-card-foreground px-3 py-1 text-xs disabled:opacity-50"
+          >
+            <Plus className="h-3 w-3 mr-1" /> Add Parcel
+          </Button>
+        </div>
+
+        {farmParcels.map((parcel, index) => (
+          <div key={parcel.id} className="border border-border rounded-md p-4 mb-4 bg-muted">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-muted-foreground font-medium">Activity Parcel {index + 1}</h4>
+              {farmParcels.length > 1 && (
+                <Button 
+                  type="button"
+                  onClick={() => removeFormItem(setFarmParcels, farmParcels, parcel.id)}
+                  className="bg-destructive hover:bg-destructive/80 text-card-foreground px-2 py-1 text-xs"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Activity Location</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Barangay, City/Municipality" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-1 block">Activity Description</label>
+                <Input className="bg-muted border-border text-card-foreground" placeholder="Describe the activity" />
               </div>
             </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Livelihood</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>Main Livelihood:</strong> {formData.mainLivelihood || 'N/A'}</p>
-                <p><strong>Profession:</strong> {formData.profession || 'N/A'}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderFinancialTab = () => (
+    <div className="space-y-6">
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Financial Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">RSBSA Reference Number</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="RSBSA Reference Number" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">TIN Number</label>
+            <Input className="bg-muted border-border text-card-foreground" placeholder="TIN Number" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Profession</label>
+            <select className="w-full h-10 px-3 py-2 bg-muted border border-border rounded-md text-card-foreground">
+              <option value="">Select Profession</option>
+              <option value="farmer">Farmer</option>
+              <option value="fisherfolk">Fisherfolk</option>
+              <option value="farm_worker">Farm Worker</option>
+              <option value="agri_youth">Agri-Youth</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Source of Funds</label>
+            <select className="w-full h-10 px-3 py-2 bg-muted border border-border rounded-md text-card-foreground">
+              <option value="">Select Source of Funds</option>
+              <option value="salary">Salary</option>
+              <option value="business">Business</option>
+              <option value="remittance">Remittance</option>
+              <option value="pension">Pension</option>
+              <option value="investment">Investment</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <h4 className="text-muted-foreground font-medium mb-4">Gross Income Last Year</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">Farming</label>
+              <Input className="bg-muted border-border text-card-foreground" placeholder="₱ 0.00" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">Non-Farming</label>
+              <Input className="bg-muted border-border text-card-foreground" placeholder="₱ 0.00" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPreviewTab = () => (
+    <div className="space-y-6">
+      <div className="bg-card p-4 rounded-md border border-border">
+        <h3 className="text-card-foreground font-medium mb-4">Review Registration Information</h3>
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-muted-foreground font-medium mb-2">Personal Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Registry Type:</span>
+                <span className="text-card-foreground capitalize">{registryType}</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Reference Number:</span>
+                <span className="text-card-foreground">01-03-15-001-000001</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Full Name:</span>
+                <span className="text-card-foreground">Juan Dela Cruz</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Mother's Name:</span>
+                <span className="text-card-foreground">Maria Santos</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Birthdate:</span>
+                <span className="text-card-foreground">January 15, 1985</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Sex:</span>
+                <span className="text-card-foreground">Male</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Mobile Number:</span>
+                <span className="text-card-foreground">+63 912 345 6789</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Civil Status:</span>
+                <span className="text-card-foreground">Married</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Education:</span>
+                <span className="text-card-foreground">College</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Religion:</span>
+                <span className="text-card-foreground">Christianity</span>
               </div>
             </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-slate-700">Financial</h4>
-              <div className="text-sm text-slate-600 space-y-1">
-                <p><strong>RSBSA Reference:</strong> {formData.rsbsaReference || 'N/A'}</p>
-                <p><strong>TIN Number:</strong> {formData.tinNumber || 'N/A'}</p>
-                <p><strong>Source of Funds:</strong> {formData.sourceOfFunds || 'N/A'}</p>
+          </div>
+
+          <div className="border-t border-border pt-4">
+            <h4 className="text-muted-foreground font-medium mb-2">Address Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+              <div>
+                <h5 className="text-muted-foreground text-sm mb-1">Permanent Address</h5>
+                <p className="text-card-foreground">123 Main St., Brgy. San Isidro, Tacloban City, Leyte, Region VIII</p>
+              </div>
+              <div>
+                <h5 className="text-muted-foreground text-sm mb-1">Present Address</h5>
+                <p className="text-card-foreground">123 Main St., Brgy. San Isidro, Tacloban City, Leyte, Region VIII</p>
+              </div>
+            </div>
+          </div>
+
+          {registryType === 'farmer' && (
+            <div className="border-t border-border pt-4">
+              <h4 className="text-muted-foreground font-medium mb-2">Farm Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                <div className="flex">
+                  <span className="text-muted-foreground w-36">Farm Parcels:</span>
+                  <span className="text-card-foreground">2</span>
+                </div>
+                <div className="flex">
+                  <span className="text-muted-foreground w-36">Total Area:</span>
+                  <span className="text-card-foreground">1.5 hectares</span>
+                </div>
+                <div className="flex flex-col md:col-span-2">
+                  <span className="text-muted-foreground mb-1">Crops:</span>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-chart-1/50 text-chart-1">Rice</Badge>
+                    <Badge className="bg-chart-1/50 text-chart-1">Corn</Badge>
+                    <Badge className="bg-chart-1/50 text-chart-1">Vegetables</Badge>
+                  </div>
+                </div>
+                <div className="flex flex-col md:col-span-2 mt-2">
+                  <span className="text-muted-foreground mb-1">Livestock & Poultry:</span>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-chart-1/50 text-chart-1">Carabao (2)</Badge>
+                    <Badge className="bg-chart-1/50 text-chart-1">Chicken (25)</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {registryType === 'fisherfolk' && (
+            <div className="border-t border-border pt-4">
+              <h4 className="text-muted-foreground font-medium mb-2">Fishing Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                <div className="flex flex-col md:col-span-2">
+                  <span className="text-muted-foreground mb-1">Fishing Activities:</span>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-chart-2/50 text-chart-2">Fish Capture</Badge>
+                    <Badge className="bg-chart-2/50 text-chart-2">Aquaculture</Badge>
+                    <Badge className="bg-chart-2/50 text-chart-2">Fish Vending</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {registryType === 'farmworker' && (
+            <div className="border-t border-border pt-4">
+              <h4 className="text-muted-foreground font-medium mb-2">Farm Worker Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                <div className="flex flex-col md:col-span-2">
+                  <span className="text-muted-foreground mb-1">Kind of Work:</span>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-chart-3/50 text-chart-3">Land Preparation</Badge>
+                    <Badge className="bg-chart-3/50 text-chart-3">Planting/Transplanting</Badge>
+                    <Badge className="bg-chart-3/50 text-chart-3">Harvesting</Badge>
+                  </div>
+                </div>
+                <div className="flex">
+                  <span className="text-muted-foreground w-36">Work Locations:</span>
+                  <span className="text-card-foreground">2 farms</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {registryType === 'agriyouth' && (
+            <div className="border-t border-border pt-4">
+              <h4 className="text-muted-foreground font-medium mb-2">Agri-Youth Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                <div className="flex flex-col md:col-span-2">
+                  <span className="text-muted-foreground mb-1">Type of Involvement:</span>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-chart-4/50 text-chart-4">Part of farming household</Badge>
+                    <Badge className="bg-chart-4/50 text-chart-4">Formal agri course</Badge>
+                    <Badge className="bg-chart-4/50 text-chart-4">Agricultural program</Badge>
+                  </div>
+                </div>
+                <div className="flex">
+                  <span className="text-muted-foreground w-36">Activity Locations:</span>
+                  <span className="text-card-foreground">1 location</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="border-t border-border pt-4">
+            <h4 className="text-muted-foreground font-medium mb-2">Financial Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+              <div className="flex">
+                <span className="text-muted-foreground w-36">RSBSA Number:</span>
+                <span className="text-card-foreground">RS-2025-0006</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">TIN Number:</span>
+                <span className="text-card-foreground">123-456-789-000</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Profession:</span>
+                <span className="text-card-foreground capitalize">{registryType}</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Source of Funds:</span>
+                <span className="text-card-foreground">Business</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Farming Income:</span>
+                <span className="text-card-foreground">₱ 150,000.00</span>
+              </div>
+              <div className="flex">
+                <span className="text-muted-foreground w-36">Non-Farming Income:</span>
+                <span className="text-card-foreground">₱ 50,000.00</span>
               </div>
             </div>
           </div>
@@ -632,111 +1283,150 @@ const RegisterPage = () => {
     </div>
   );
 
-  const getCurrentIcon = (tabId) => {
-    const tab = tabs.find(t => t.id === tabId);
-    return tab ? tab.icon : User;
+  const getDataTabContent = () => {
+    switch (registryType) {
+      case 'fisherfolk':
+        return renderFishDataTab();
+      case 'farmworker':
+        return renderFarmWorkerTab();
+      case 'agriyouth':
+        return renderAgriYouthTab();
+      default:
+        return renderFarmDataTab();
+    }
+  };
+
+  const getDataTabLabel = () => {
+    switch (registryType) {
+      case 'fisherfolk':
+        return 'Fish Data';
+      case 'farmworker':
+        return 'Work Data';
+      case 'agriyouth':
+        return 'Youth Data';
+      default:
+        return 'Farm Data';
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">RSBSA Registration Form</h1>
-          <p className="text-slate-600">Registry System for Basic Sectors in Agriculture</p>
-        </div>
+    <div className="p-6 space-y-6">
+      {renderRegistrySelector()}
+      
+      <Card className="bg-card border-0 shadow-md">
+        <CardHeader>
+          <CardTitle className="text-card-foreground text-xl">Register New RSBSA - {registryType.charAt(0).toUpperCase() + registryType.slice(1)}</CardTitle>
+          <CardDescription className="text-muted-foreground">Fill in the details to register a new {registryType}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-5 bg-muted mb-6">
+              <TabsTrigger value="personal" className="data-[state=active]:bg-card data-[state=active]:text-card-foreground text-muted-foreground">
+                Personal Info
+              </TabsTrigger>
+              <TabsTrigger value="address" className="data-[state=active]:bg-card data-[state=active]:text-card-foreground text-muted-foreground">
+                Address
+              </TabsTrigger>
+              <TabsTrigger value="data" className="data-[state=active]:bg-card data-[state=active]:text-card-foreground text-muted-foreground">
+                {getDataTabLabel()}
+              </TabsTrigger>
+              <TabsTrigger value="financial" className="data-[state=active]:bg-card data-[state=active]:text-card-foreground text-muted-foreground">
+                Financial
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="data-[state=active]:bg-card data-[state=active]:text-card-foreground text-muted-foreground">
+                Preview
+              </TabsTrigger>
+            </TabsList>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-8">
-            <CardTitle className="text-2xl font-bold flex items-center gap-3">
-              {React.createElement(getCurrentIcon(activeTab), { className: "h-7 w-7" })}
-              {tabs.find(t => t.id === activeTab)?.label}
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            {/* Tab Navigation */}
-            <div className="px-8 pt-8">
-              <div className="flex justify-between items-center mb-8">
-                {tabs.map((tab, index) => {
-                  const Icon = tab.icon;
-                  const isActive = tab.id === activeTab;
-                  const isCompleted = tabs.findIndex(t => t.id === activeTab) > index;
-
-                  return (
-                    <div key={tab.id} className="flex items-center">
-                      <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
-                        isActive 
-                          ? 'bg-blue-600 border-blue-600 text-white shadow-lg scale-110' 
-                          : isCompleted
-                          ? 'bg-green-500 border-green-500 text-white'
-                          : 'bg-slate-100 border-slate-300 text-slate-400'
-                      }`}>
-                        {isCompleted ? (
-                          <CheckCircle className="h-6 w-6" />
-                        ) : (
-                          <Icon className="h-6 w-6" />
-                        )}
-                      </div>
-                      {index < tabs.length - 1 && (
-                        <div className={`w-16 h-0.5 mx-2 transition-colors duration-300 ${
-                          isCompleted ? 'bg-green-500' : 'bg-slate-200'
-                        }`} />
-                      )}
-                    </div>
-                  );
-                })}
+            <TabsContent value="personal" className="mt-0">
+              {renderPersonalInfoTab()}
+              <div className="flex justify-end mt-6">
+                <Button 
+                  onClick={() => setActiveTab('address')}
+                  className="bg-primary hover:bg-primary/80 text-primary-foreground px-6 py-2 rounded-md"
+                >
+                  Next <i className="fas fa-arrow-right ml-2"></i>
+                </Button>
               </div>
-            </div>
+            </TabsContent>
 
-            {/* Form Content */}
-            <div className="px-8 pb-8">
-              <form className="space-y-8">
-                {activeTab === 'personal' && renderPersonalInfo()}
-                {activeTab === 'address' && renderAddress()}
-                {activeTab === 'farm' && renderFarmFishery()}
-                {activeTab === 'financial' && renderFinancial()}
-                {activeTab === 'review' && renderReview()}
+            <TabsContent value="address" className="mt-0">
+              {renderAddressTab()}
+              <div className="flex justify-between mt-6">
+                <Button 
+                  onClick={() => setActiveTab('personal')}
+                  variant="outline" 
+                  className="border-border bg-transparent hover:bg-muted text-muted-foreground px-6 py-2 rounded-md"
+                >
+                  <i className="fas fa-arrow-left mr-2"></i> Previous
+                </Button>
+                <Button 
+                  onClick={() => setActiveTab('data')}
+                  className="bg-primary hover:bg-primary/80 text-primary-foreground px-6 py-2 rounded-md"
+                >
+                  Next <i className="fas fa-arrow-right ml-2"></i>
+                </Button>
+              </div>
+            </TabsContent>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between pt-8 border-t border-slate-200">
-                  <Button
-                    type="button"
-                    onClick={prevTab}
-                    disabled={activeTab === 'personal'}
-                    className="bg-slate-600 hover:bg-slate-700 text-white rounded-xl px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg"
-                  >
-                    <ChevronLeft className="h-4 w-4 mr-2" />
-                    Previous
-                  </Button>
+            <TabsContent value="data" className="mt-0">
+              {getDataTabContent()}
+              <div className="flex justify-between mt-6">
+                <Button 
+                  onClick={() => setActiveTab('address')}
+                  variant="outline" 
+                  className="border-border bg-transparent hover:bg-muted text-muted-foreground px-6 py-2 rounded-md"
+                >
+                  <i className="fas fa-arrow-left mr-2"></i> Previous
+                </Button>
+                <Button 
+                  onClick={() => setActiveTab('financial')}
+                  className="bg-primary hover:bg-primary/80 text-primary-foreground px-6 py-2 rounded-md"
+                >
+                  Next <i className="fas fa-arrow-right ml-2"></i>
+                </Button>
+              </div>
+            </TabsContent>
 
-                  {activeTab === 'review' ? (
-                    <Button
-                      type="submit"
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Submit Registration
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={nextTab}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                    >
-                      Next
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  )}
-                </div>
-              </form>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <TabsContent value="financial" className="mt-0">
+              {renderFinancialTab()}
+              <div className="flex justify-between mt-6">
+                <Button 
+                  onClick={() => setActiveTab('data')}
+                  variant="outline" 
+                  className="border-border bg-transparent hover:bg-muted text-muted-foreground px-6 py-2 rounded-md"
+                >
+                  <i className="fas fa-arrow-left mr-2"></i> Previous
+                </Button>
+                <Button 
+                  onClick={() => setActiveTab('preview')}
+                  className="bg-primary hover:bg-primary/80 text-primary-foreground px-6 py-2 rounded-md"
+                >
+                  Next <i className="fas fa-arrow-right ml-2"></i>
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="preview" className="mt-0">
+              {renderPreviewTab()}
+              <div className="flex justify-between mt-6">
+                <Button 
+                  onClick={() => setActiveTab('financial')}
+                  variant="outline" 
+                  className="border-border bg-transparent hover:bg-muted text-muted-foreground px-6 py-2 rounded-md"
+                >
+                  <i className="fas fa-arrow-left mr-2"></i> Previous
+                </Button>
+                <Button className="bg-chart-1 hover:bg-chart-1/80 text-card-foreground px-6 py-2 rounded-md">
+                  <i className="fas fa-check mr-2"></i> Submit Registration
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
 export default RegisterPage;
-
