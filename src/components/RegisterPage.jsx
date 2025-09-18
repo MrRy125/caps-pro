@@ -1,4 +1,3 @@
-@@ -1,743 +1,744 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -740,3 +739,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+
