@@ -78,10 +78,10 @@ const RegisterPage = () => {
       <h3 className="text-gray-200 font-medium mb-4">Select Registry Type</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { value: 'farmer', label: 'Farmer', desc: 'Register as a farmer with crop and animal production details', color: 'chart-1' },
-          { value: 'fisherfolk', label: 'Fisherfolk', desc: 'Register as a fisherfolk with fishing activities', color: 'chart-2' },
-          { value: 'farmworker', label: 'Farm Worker/Laborer', desc: 'Register as a farm worker or laborer', color: 'chart-3' },
-          { value: 'agriyouth', label: 'Agri-Youth', desc: 'Register as agri-youth participant', color: 'chart-4' }
+          { value: 'farmer', label: 'Farmer', desc: 'Register as a farmer with crop and animal production details', color: '#3366CC' },
+          { value: 'fisherfolk', label: 'Fisherfolk', desc: 'Register as a fisherfolk with fishing activities', color: '#33CC33' },
+          { value: 'farmworker', label: 'Farm Worker/Laborer', desc: 'Register as a farm worker or laborer', color: '#CC9933' },
+          { value: 'agriyouth', label: 'Agri-Youth', desc: 'Register as agri-youth participant', color: '#9933CC' }
         ].map((type) => (
           <div
             key={type.value}
@@ -1463,3 +1463,4 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
+
