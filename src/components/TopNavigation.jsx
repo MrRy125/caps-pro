@@ -1,10 +1,10 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Calendar } from "@/components/ui/calendar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "components/ui/dropdown-menu";
+import { Calendar } from "components/ui/calendar";
+import { ScrollArea } from "components/ui/scroll-area";
 
-const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, setShowCalendar, date, setDate, showNotifications, setShowNotifications, unreadNotifications, handleLogout }) => {
+const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, setShowCalendar, date, setDate, showNotifications, setShowNotifications, unreadNotifications, handleLogout, setCurrentPage }) => {
   
   return (
     <header className="h-16 bg-[#1a1a1a] border-b border-[#333333] flex items-center justify-between px-4">
@@ -19,9 +19,7 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
               />
             </div>
             <div className="hidden md:flex items-center">
-              <h2 className="text-xl font-bold text-white">
-                {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
-              </h2>
+              
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -63,13 +61,10 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
                     <ScrollArea className="h-64">
                       <div className="p-2">
                         {[
-                          { title: 'Unset Pinmark', message: '5 farmers in Brgy. San Isidro need location pinmarks', time: '2 hours ago', read: false },
                           { title: 'New Registration', message: 'Juan Dela Cruz registered as a farmer', time: '5 hours ago', read: false },
                           { title: 'Export Completed', message: 'Your data export is ready for download', time: '1 day ago', read: false },
-                          { title: 'System Update', message: 'The system will undergo maintenance tonight', time: '1 day ago', read: false },
                           { title: 'Import Completed', message: 'Successfully imported 120 records', time: '2 days ago', read: true },
                           { title: 'User Created', message: 'New user Maria Santos was created', time: '3 days ago', read: true },
-                          { title: 'Report Generated', message: 'Monthly report has been generated', time: '4 days ago', read: true }
                         ].map((notification, index) => (
                           <div 
                             key={index} 
@@ -110,7 +105,7 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
                 <DropdownMenuTrigger asChild>
                   <button className="cursor-pointer">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-purple-900/30 text-white text-xs">
+                      <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white text-xs">
                         JD
                       </AvatarFallback>
                     </Avatar>
@@ -129,7 +124,13 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
                     <i className="fas fa-cog mr-2 text-gray-400"></i>
                     <span>Settings</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer hover:bg-[#333333]">
+                  <DropdownMenuItem 
+                    className="cursor-pointer hover:bg-[#333333]"
+                    onClick={() => {
+                      setCurrentPage('help');  // Navigate to Help page
+                      // If this is inside a DropdownMenu, it will auto-close on click; otherwise, add logic to close it (e.g., setShowNotifications(false))
+                    }}
+                  >
                     <i className="fas fa-question-circle mr-2 text-gray-400"></i>
                     <span>Help</span>
                   </DropdownMenuItem>

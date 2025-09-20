@@ -1,229 +1,882 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table";
+import * as echarts from 'echarts';
 
+const DashboardPage = ({ isSidebarCollapsed }) => {
+  const [selectedArea, setSelectedArea] = useState(null);
+  const [modalType, setModalType] = useState(null); // 'crops' or 'animals'
 
-const DashboardPage = () => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initCharts();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // whenever sidebar collapses/expands, resize all charts
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 300); // wait for transition
+  }, [isSidebarCollapsed]);
+
+  const detailedData = {
+    'Upper Jasaan': {
+      crops: {
+        'Rice': { purok5: 134, purok6: 98, purok7: 87, purok8: 76, purok9: 65, total: 460 },
+        'Corn': { purok5: 89, purok6: 67, purok7: 54, purok8: 43, purok9: 32, total: 285 },
+        'Coconut': { purok5: 45, purok6: 38, purok7: 29, purok8: 21, purok9: 17, total: 150 },
+        'Banana': { purok5: 23, purok6: 19, purok7: 15, purok8: 12, purok9: 8, total: 77 },
+        'Vegetables': { purok5: 18, purok6: 15, purok7: 12, purok8: 9, purok9: 6, total: 60 }
+      },
+      animals: {
+        'Chicken': { purok5: 456, purok6: 389, purok7: 298, purok8: 234, purok9: 178, total: 1555 },
+        'Swine': { purok5: 123, purok6: 98, purok7: 87, purok8: 65, purok9: 54, total: 427 },
+        'Carabao': { purok5: 34, purok6: 28, purok7: 23, purok8: 19, purok9: 15, total: 119 },
+        'Goat': { purok5: 45, purok6: 38, purok7: 31, purok8: 25, purok9: 18, total: 157 },
+        'Cattle': { purok5: 28, purok6: 23, purok7: 19, purok8: 15, purok9: 12, total: 97 }
+      }
+    },
+    'Lower Jasaan': {
+      crops: {
+        'Rice': { purok1: 145, purok2: 123, purok3: 134, purok4: 109, purok10: 87, purok11: 68, total: 666 },
+        'Corn': { purok1: 78, purok2: 65, purok3: 72, purok4: 54, purok10: 43, purok11: 32, total: 344 },
+        'Coconut': { purok1: 56, purok2: 48, purok3: 52, purok4: 39, purok10: 31, purok11: 24, total: 250 },
+        'Banana': { purok1: 34, purok2: 29, purok3: 31, purok4: 23, purok10: 18, purok11: 15, total: 150 },
+        'Vegetables': { purok1: 21, purok2: 18, purok3: 19, purok4: 15, purok10: 12, purok11: 9, total: 94 }
+      },
+      animals: {
+        'Chicken': { purok1: 567, purok2: 489, purok3: 523, purok4: 398, purok10: 289, purok11: 234, total: 2500 },
+        'Swine': { purok1: 156, purok2: 134, purok3: 145, purok4: 109, purok10: 87, purok11: 69, total: 700 },
+        'Carabao': { purok1: 45, purok2: 38, purok3: 41, purok4: 31, purok10: 25, purok11: 20, total: 200 },
+        'Goat': { purok1: 67, purok2: 56, purok3: 61, purok4: 46, purok10: 37, purok11: 28, total: 295 },
+        'Cattle': { purok1: 39, purok2: 33, purok3: 36, purok4: 27, purok10: 22, purok11: 18, total: 175 }
+      }
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initCharts();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const initCharts = () => {
+    // Gender Distribution Donut Chart
+    const genderChart = echarts.init(document.getElementById('genderChart'));
+    const genderOption = {
+      animation: true,
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: '#1e1e1e',
+        borderColor: '#333',
+        textStyle: { color: '#e2e8f0' }
+      },
+      legend: {
+        top: '5%',
+        left: 'center',
+        textStyle: { color: '#e2e8f0' }
+      },
+      series: [
+        {
+          name: 'Gender Distribution',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['50%', '60%'],
+          data: [
+            { value: 773, name: 'Male Farmers', itemStyle: { color: '#3b82f6' } },
+            { value: 474, name: 'Female Farmers', itemStyle: { color: '#06b6d4' } },
+            { value: 223, name: 'Male Fisherfolks', itemStyle: { color: '#10b981' } },
+            { value: 162, name: 'Female Fisherfolks', itemStyle: { color: '#34d399' } }
+          ],
+            label: {
+            show: true,
+            color: '#e2e8f0',           // label text color
+            fontSize: 16,
+            fontWeight: 'bold',
+            textBorderColor: 'transparent', // remove border stroke
+            textBorderWidth: 0              // disable border thickness
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ],
+      backgroundColor: 'transparent'
+    };
+    genderChart.setOption(genderOption);
+
+    // Production by Area Bar Chart (Simplified - only by barangay)
+    const productionChart = echarts.init(document.getElementById('productionChart'));
+    const productionOption = {
+      animation: true,
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#1e1e1e',
+        borderColor: '#333',
+        textStyle: { color: '#e2e8f0' }
+      },
+      legend: {
+        data: ['Crops', 'Animals'],
+        textStyle: { color: '#e2e8f0' },
+        top: '5%'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '10%',
+        top: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Upper Jasaan', 'Lower Jasaan'],
+        axisLabel: { color: '#e2e8f0', fontSize: 12 }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: '#e2e8f0' },
+        nameTextStyle: { color: '#e2e8f0' }
+      },
+      series: [
+        {
+          name: 'Crops',
+          type: 'bar',
+          data: [320, 332],
+          itemStyle: { color: '#10b981' }
+        },
+        {
+          name: 'Animals',
+          type: 'bar',
+          data: [220, 182],
+          itemStyle: { color: '#f59e0b' }
+        }
+      ],
+      backgroundColor: 'transparent'
+    };
+    
+    productionChart.setOption(productionOption);
+    
+    // Add click event for production chart
+    productionChart.on('click', function(params) {
+      if (params.seriesName === 'Crops') {
+        setSelectedArea(params.name);
+        setModalType('crops');
+      } else if (params.seriesName === 'Animals') {
+        setSelectedArea(params.name);
+        setModalType('animals');
+      }
+    });    
+
+    // Monthly Registration Line Chart
+    const registrationChart = echarts.init(document.getElementById('registrationChart'));
+    const registrationOption = {
+      animation: true,
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#1e1e1e',
+        borderColor: '#333',
+        textStyle: { color: '#e2e8f0' }
+      },
+      legend: {
+        data: ['Farmers', 'Fisherfolks'],
+        textStyle: { color: '#e2e8f0' },
+        top: '5%'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '10%',
+        top: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        axisLabel: { color: '#e2e8f0' }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: { color: '#e2e8f0' }
+      },
+      series: [
+        {
+          name: 'Farmers',
+          type: 'line',
+          data: [45, 52, 38, 67, 71, 85, 92, 78, 65, 58, 49, 43],
+          smooth: true,
+          itemStyle: { color: '#10b981' },
+          lineStyle: { color: '#10b981', width: 3 }
+        },
+        {
+          name: 'Fisherfolks',
+          type: 'line',
+          data: [12, 8, 15, 18, 22, 28, 25, 19, 16, 14, 11, 9],
+          smooth: true,
+          itemStyle: { color: '#3b82f6' },
+          lineStyle: { color: '#3b82f6', width: 3 }
+        }
+      ],
+      backgroundColor: 'transparent'
+    };
+    registrationChart.setOption(registrationOption);
+
+    // Top Crops Stacked Horizontal Bar Chart
+    const cropsChart = echarts.init(document.getElementById('cropsChart'));
+    const cropsOption = {
+      animation: true,
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: '#1e1e1e',
+        borderColor: '#333',
+        textStyle: { color: '#e2e8f0' },
+        formatter: function(params) {
+          return `${params.seriesName}: ${params.value} tons<br/>${params.name}`;
+        }
+      },
+      legend: {
+        data: ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 5', 'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9', 'Purok 10', 'Purok 11'],
+        textStyle: { color: '#e2e8f0' },
+        type: 'scroll',
+        top: '3%'
+      },
+      grid: {
+        left: '15%',
+        right: '10%',
+        top: '15%',
+        bottom: '10%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'value',
+        axisLabel: { color: '#e2e8f0' }
+      },
+      yAxis: {
+        type: 'category',
+        data: ['Vegetables', 'Banana', 'Coconut', 'Corn', 'Rice'],
+        axisLabel: { color: '#e2e8f0' }
+      },
+      series: [
+        {
+          name: 'Purok 1',
+          type: 'bar',
+          stack: 'total',
+          data: [21, 34, 56, 78, 145],
+          itemStyle: { color: '#ef4444' }
+        },
+        {
+          name: 'Purok 2',
+          type: 'bar',
+          stack: 'total',
+          data: [18, 29, 48, 65, 123],
+          itemStyle: { color: '#f97316' }
+        },
+        {
+          name: 'Purok 3',
+          type: 'bar',
+          stack: 'total',
+          data: [19, 31, 52, 72, 134],
+          itemStyle: { color: '#eab308' }
+        },
+        {
+          name: 'Purok 4',
+          type: 'bar',
+          stack: 'total',
+          data: [15, 23, 39, 54, 109],
+          itemStyle: { color: '#22c55e' }
+        },
+        {
+          name: 'Purok 5',
+          type: 'bar',
+          stack: 'total',
+          data: [18, 23, 45, 89, 134],
+          itemStyle: { color: '#06b6d4' }
+        },
+        {
+          name: 'Purok 6',
+          type: 'bar',
+          stack: 'total',
+          data: [15, 19, 38, 67, 98],
+          itemStyle: { color: '#3b82f6' }
+        },
+        {
+          name: 'Purok 7',
+          type: 'bar',
+          stack: 'total',
+          data: [12, 15, 29, 54, 87],
+          itemStyle: { color: '#8b5cf6' }
+        },
+        {
+          name: 'Purok 8',
+          type: 'bar',
+          stack: 'total',
+          data: [9, 12, 21, 43, 76],
+          itemStyle: { color: '#d946ef' }
+        },
+        {
+          name: 'Purok 9',
+          type: 'bar',
+          stack: 'total',
+          data: [6, 8, 17, 32, 65],
+          itemStyle: { color: '#f43f5e' }
+        },
+        {
+          name: 'Purok 10',
+          type: 'bar',
+          stack: 'total',
+          data: [12, 18, 31, 43, 87],
+          itemStyle: { color: '#84cc16' }
+        },
+        {
+          name: 'Purok 11',
+          type: 'bar',
+          stack: 'total',
+          data: [9, 15, 24, 32, 68],
+          itemStyle: { color: '#06d6a0' }
+        }
+      ],
+      backgroundColor: 'transparent'
+    };
+    cropsChart.setOption(cropsOption);
+
+    // Top Animals Stacked Horizontal Bar Chart
+    const animalsChart = echarts.init(document.getElementById('animalsChart'));
+    const animalsOption = {
+      animation: true,
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: '#1e1e1e',
+        borderColor: '#333',
+        textStyle: { color: '#e2e8f0' },
+        formatter: function(params) {
+          return `${params.seriesName}: ${params.value} heads<br/>${params.name}`;
+        }
+      },
+      legend: {
+        data: ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 5', 'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9', 'Purok 10', 'Purok 11'],
+        textStyle: { color: '#e2e8f0' },
+        type: 'scroll',
+        top: '3%'
+      },
+      grid: {
+        left: '15%',
+        right: '10%',
+        top: '15%',
+        bottom: '10%',
+        containLabel: false
+      },
+      xAxis: {
+        type: 'value',
+        axisLabel: { color: '#e2e8f0' }
+      },
+      yAxis: {
+        type: 'category',
+        data: ['Cattle', 'Goat', 'Carabao', 'Swine', 'Chicken'],
+        axisLabel: { color: '#e2e8f0' }
+      },
+      series: [
+        {
+          name: 'Purok 1',
+          type: 'bar',
+          stack: 'total',
+          data: [39, 67, 45, 156, 567],
+          itemStyle: { color: '#ef4444' }
+        },
+        {
+          name: 'Purok 2',
+          type: 'bar',
+          stack: 'total',
+          data: [33, 56, 38, 134, 489],
+          itemStyle: { color: '#f97316' }
+        },
+        {
+          name: 'Purok 3',
+          type: 'bar',
+          stack: 'total',
+          data: [36, 61, 41, 145, 523],
+          itemStyle: { color: '#eab308' }
+        },
+        {
+          name: 'Purok 4',
+          type: 'bar',
+          stack: 'total',
+          data: [27, 46, 31, 109, 398],
+          itemStyle: { color: '#22c55e' }
+        },
+        {
+          name: 'Purok 5',
+          type: 'bar',
+          stack: 'total',
+          data: [28, 45, 34, 123, 456],
+          itemStyle: { color: '#06b6d4' }
+        },
+        {
+          name: 'Purok 6',
+          type: 'bar',
+          stack: 'total',
+          data: [23, 38, 28, 98, 389],
+          itemStyle: { color: '#3b82f6' }
+        },
+        {
+          name: 'Purok 7',
+          type: 'bar',
+          stack: 'total',
+          data: [19, 31, 23, 87, 298],
+          itemStyle: { color: '#8b5cf6' }
+        },
+        {
+          name: 'Purok 8',
+          type: 'bar',
+          stack: 'total',
+          data: [15, 25, 19, 65, 234],
+          itemStyle: { color: '#d946ef' }
+        },
+        {
+          name: 'Purok 9',
+          type: 'bar',
+          stack: 'total',
+          data: [12, 18, 15, 54, 178],
+          itemStyle: { color: '#f43f5e' }
+        },
+        {
+          name: 'Purok 10',
+          type: 'bar',
+          stack: 'total',
+          data: [22, 37, 25, 87, 289],
+          itemStyle: { color: '#84cc16' }
+        },
+        {
+          name: 'Purok 11',
+          type: 'bar',
+          stack: 'total',
+          data: [18, 28, 20, 69, 234],
+          itemStyle: { color: '#06d6a0' }
+        }
+      ],
+      backgroundColor: 'transparent'
+    };
+    animalsChart.setOption(animalsOption);
+
+    // Resize handler
+    const handleResize = () => {
+      genderChart.resize();
+      productionChart.resize();
+      registrationChart.resize();
+      cropsChart.resize();
+      animalsChart.resize();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      genderChart.dispose();
+      productionChart.dispose();
+      registrationChart.dispose();
+      cropsChart.dispose();
+      animalsChart.dispose();
+    };
+  };
+
   return (
     <div className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">Total Farmers</p>
-                  <h3 className="text-2xl font-bold text-white mt-1">4,289</h3>
-                  <p className="text-xs text-green-500 mt-1">+12% from last month</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-green-900/30 flex items-center justify-center">
-                  <i className="fas fa-seedling text-green-500 text-xl"></i>
-                </div>
+      {/* 4 Column Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Total Farmers</p>
+                <h3 className="text-2xl font-bold text-white mt-1">1,247</h3>
+                <p className="text-xs text-green-500 mt-1">+15% from last month</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">Total Fisherfolks</p>
-                  <h3 className="text-2xl font-bold text-white mt-1">2,157</h3>
-                  <p className="text-xs text-blue-500 mt-1">+8% from last month</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-900/30 flex items-center justify-center">
-                  <i className="fas fa-fish text-blue-500 text-xl"></i>
-                </div>
+              <div className="h-12 w-12 rounded-full bg-green-900/30 flex items-center justify-center">
+                <i className="fas fa-seedling text-green-500 text-xl"></i>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">Unset Pinmarks</p>
-                  <h3 className="text-2xl font-bold text-white mt-1">342</h3>
-                  <p className="text-xs text-orange-500 mt-1">Action needed</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-orange-900/30 flex items-center justify-center">
-                  <i className="fas fa-map-marker-alt text-orange-500 text-xl"></i>
-                </div>
+        <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Total Fisherfolks</p>
+                <h3 className="text-2xl font-bold text-white mt-1">385</h3>
+                <p className="text-xs text-blue-500 mt-1">+8% from last month</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">Total Crops/Animals</p>
-                  <h3 className="text-2xl font-bold text-white mt-1">12,845</h3>
-                  <p className="text-xs text-purple-500 mt-1">+5% from last month</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-900/30 flex items-center justify-center">
-                  <i className="fas fa-leaf text-purple-500 text-xl"></i>
-                </div>
+              <div className="h-12 w-12 rounded-full bg-blue-900/30 flex items-center justify-center">
+                <i className="fas fa-fish text-blue-500 text-xl"></i>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#1e1e1e] border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Registry Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div id="donutChart" className="h-80 w-full"></div>
-            </CardContent>
-          </Card>
+        <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Total Crops</p>
+                <h3 className="text-2xl font-bold text-white mt-1">2,847</h3>
+                <p className="text-xs text-orange-500 mt-1">+12% from last season</p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-orange-900/30 flex items-center justify-center">
+                <i className="fas fa-leaf text-orange-500 text-xl"></i>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="bg-[#1e1e1e] border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Production by Area</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div id="barChart" className="h-80 w-full"></div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          {/* Row 1: Monthly Registration Chart */}
-          <Card className="bg-[#1e1e1e] border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-white text-lg">Monthly Registration Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div id="lineChart" className="h-80 w-full"></div>
-            </CardContent>
-          </Card>
-
-          {/* Row 2: 3 Columns for Top Puroks, Crops, Animals */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Top Puroks */}
-            <Card className="bg-[#1e1e1e] border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-white text-lg">Top Puroks</CardTitle>
-              </CardHeader>
-              <CardContent>
-              <div className="space-y-3">
-                      {[
-                        { name: 'Purok 1', count: 428, percent: 92 },
-                        { name: 'Purok 2', count: 356, percent: 78 },
-                        { name: 'Purok 3', count: 312, percent: 65 },
-                        { name: 'Purok 4', count: 287, percent: 59 },
-                        { name: 'Purok 5', count: 243, percent: 52 }
-                      ].map((barangay, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-300">{barangay.name}</span>
-                            <span className="text-gray-400">{barangay.count}</span>
-                          </div>
-                          <div className="w-full bg-gray-700 rounded-full h-2">
-                            <div 
-                              className="bg-blue-500 h-2 rounded-full" 
-                              style={{ width: `${barangay.percent}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-              </CardContent>
-            </Card>
-
-            {/* Top Crops */}
-            <Card className="bg-[#1e1e1e] border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-white text-lg">Top Crops</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Rice', count: 1245, percent: 85 },
-                    { name: 'Corn', count: 987, percent: 68 },
-                    { name: 'Coconut', count: 756, percent: 52 },
-                    { name: 'Banana', count: 543, percent: 37 },
-                    { name: 'Vegetables', count: 432, percent: 30 }
-                  ].map((item, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between text-sm text-gray-300">
-                        <span>{item.name}</span>
-                        <span className="text-gray-400">{item.count}</span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{ width: `${item.percent}%` }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Top Animals */}
-            <Card className="bg-[#1e1e1e] border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-white text-lg">Top Animals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Chicken', count: 3245, percent: 90 },
-                    { name: 'Swine', count: 1876, percent: 52 },
-                    { name: 'Carabao', count: 1243, percent: 35 },
-                    { name: 'Goat', count: 987, percent: 27 },
-                    { name: 'Cattle', count: 765, percent: 21 }
-                  ].map((item, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between text-sm text-gray-300">
-                        <span>{item.name}</span>
-                        <span className="text-gray-400">{item.count}</span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${item.percent}%` }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-                
-        <div className="rounded-md border border-[#333333] overflow-hidden mt-6">
-                  <Table>
-                    <TableHeader className="bg-[#252525]">
-                      <TableRow>
-                        <TableHead className="text-gray-300">Crop Type</TableHead>
-                        <TableHead className="text-gray-300">Total Area (ha)</TableHead>
-                        <TableHead className="text-gray-300">Farmers</TableHead>
-                        <TableHead className="text-gray-300">Avg. Yield (mt/ha)</TableHead>
-                        <TableHead className="text-gray-300">Total Production (mt)</TableHead>
-                        <TableHead className="text-gray-300">Est. Value (₱)</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {[
-                        { crop: 'Rice', area: '1,245.5', farmers: 1245, yield: '4.2', production: '5,231.1', value: '104,622,000' },
-                        { crop: 'Corn', area: '987.3', farmers: 987, yield: '3.8', production: '3,751.7', value: '56,275,500' },
-                        { crop: 'Coconut', area: '756.8', farmers: 756, yield: '5.2', production: '3,935.4', value: '39,354,000' },
-                        { crop: 'Banana', area: '543.2', farmers: 543, yield: '12.5', production: '6,790.0', value: '33,950,000' },
-                        { crop: 'Vegetables', area: '432.1', farmers: 432, yield: '8.7', production: '3,759.3', value: '75,186,000' }
-                      ].map((record, index) => (
-                        <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525]">
-                          <TableCell className="font-medium text-gray-300">{record.crop}</TableCell>
-                          <TableCell className="text-gray-400">{record.area}</TableCell>
-                          <TableCell className="text-gray-400">{record.farmers}</TableCell>
-                          <TableCell className="text-gray-400">{record.yield}</TableCell>
-                          <TableCell className="text-gray-400">{record.production}</TableCell>
-                          <TableCell className="text-gray-400">₱{record.value}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+        <Card className="bg-[#1e1e1e] border-0 shadow-md hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-400">Total Animals</p>
+                <h3 className="text-2xl font-bold text-white mt-1">8,459</h3>
+                <p className="text-xs text-yellow-500 mt-1">+7% from last month</p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-yellow-900/30 flex items-center justify-center">
+                <i className="fas fa-paw text-yellow-500 text-xl"></i>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* 2 Column Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Registry Distribution by Gender</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div id="genderChart" className="h-80 w-full"></div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Production by Area</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div id="productionChart" className="h-80 w-full"></div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Line Chart - Monthly Registration Trend */}
+      <Card className="bg-[#1e1e1e] border-0 shadow-md">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">Monthly Registration Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div id="registrationChart" className="h-80 w-full"></div>
+        </CardContent>
+      </Card>
+
+      {/* 3 Column Charts and Lists */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Top 5 Puroks */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Top 5 Puroks</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[
+                { name: 'Purok 5 (Upper Jasaan)', count: 189, percent: 92 },
+                { name: 'Purok 3 (Lower Jasaan)', count: 167, percent: 81 },
+                { name: 'Purok 6 (Upper Jasaan)', count: 156, percent: 76 },
+                { name: 'Purok 1 (Lower Jasaan)', count: 145, percent: 71 },
+                { name: 'Purok 2 (Lower Jasaan)', count: 128, percent: 62 }
+              ].map((purok, index) => (
+                <div key={index} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">{purok.name}</span>
+                    <span className="text-gray-400">{purok.count}</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                      style={{ width: `${purok.percent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Crops Chart */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Top Crops Production</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div id="cropsChart" className="h-80 w-full"></div>
+          </CardContent>
+        </Card>
+
+        {/* Top Animals Chart */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Top Animals Population</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div id="animalsChart" className="h-80 w-full"></div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Summary Tables by Barangay */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Lower Jasaan Summary */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Lower Jasaan Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="text-gray-300 font-medium mb-3">Crops Production</h4>
+              <div className="rounded-md border border-[#333333] overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-[#252525]">
+                    <TableRow>
+                      <TableHead className="text-gray-300">Crop Type</TableHead>
+                      <TableHead className="text-gray-300">Area (ha)</TableHead>
+                      <TableHead className="text-gray-300">Production (mt)</TableHead>
+                      <TableHead className="text-gray-300">Type</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { crop: 'Rice', area: '245.5', production: '982.1', type: 'Irrigated' },
+                      { crop: 'Rice', area: '156.8', production: '548.2', type: 'Rainfed' },
+                      { crop: 'Corn', area: '189.3', production: '456.7', type: 'Rainfed' },
+                      { crop: 'Coconut', area: '234.2', production: '298.5', type: 'Rainfed' }
+                    ].map((record, index) => (
+                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                        <TableCell className="text-gray-300">{record.crop}</TableCell>
+                        <TableCell className="text-gray-400">{record.area}</TableCell>
+                        <TableCell className="text-gray-400">{record.production}</TableCell>
+                        <TableCell className="text-gray-400">{record.type}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="border-t-2 border-blue-500 bg-[#252525]">
+                      <TableCell className="text-white font-bold">TOTAL</TableCell>
+                      <TableCell className="text-white font-bold">825.8 ha</TableCell>
+                      <TableCell className="text-white font-bold">2,285.5 mt</TableCell>
+                      <TableCell className="text-gray-400">-</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="text-gray-300 font-medium mb-3">Livestock & Poultry</h4>
+              <div className="rounded-md border border-[#333333] overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-[#252525]">
+                    <TableRow>
+                      <TableHead className="text-gray-300">Animal Type</TableHead>
+                      <TableHead className="text-gray-300">Total Heads</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { animal: 'Chicken', heads: '1,764' },
+                      { animal: 'Swine', heads: '1,091' },
+                      { animal: 'Carabao', heads: '332' },
+                      { animal: 'Goat', heads: '245' }
+                    ].map((record, index) => (
+                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                        <TableCell className="text-gray-300">{record.animal}</TableCell>
+                        <TableCell className="text-gray-400">{record.heads}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="border-t-2 border-orange-500 bg-[#252525]">
+                      <TableCell className="text-white font-bold">TOTAL</TableCell>
+                      <TableCell className="text-white font-bold">3,432 heads</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upper Jasaan Summary */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Upper Jasaan Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="text-gray-300 font-medium mb-3">Crops Production</h4>
+              <div className="rounded-md border border-[#333333] overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-[#252525]">
+                    <TableRow>
+                      <TableHead className="text-gray-300">Crop Type</TableHead>
+                      <TableHead className="text-gray-300">Area (ha)</TableHead>
+                      <TableHead className="text-gray-300">Production (mt)</TableHead>
+                      <TableHead className="text-gray-300">Type</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { crop: 'Rice', area: '312.7', production: '1,234.8', type: 'Irrigated' },
+                      { crop: 'Rice', area: '189.4', production: '678.9', type: 'Rainfed' },
+                      { crop: 'Corn', area: '267.8', production: '612.3', type: 'Rainfed' },
+                      { crop: 'Coconut', area: '298.1', production: '387.6', type: 'Rainfed' }
+                    ].map((record, index) => (
+                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                        <TableCell className="text-gray-300">{record.crop}</TableCell>
+                        <TableCell className="text-gray-400">{record.area}</TableCell>
+                        <TableCell className="text-gray-400">{record.production}</TableCell>
+                        <TableCell className="text-gray-400">{record.type}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="border-t-2 border-blue-500 bg-[#252525]">
+                      <TableCell className="text-white font-bold">TOTAL</TableCell>
+                      <TableCell className="text-white font-bold">1,068.0 ha</TableCell>
+                      <TableCell className="text-white font-bold">2,913.6 mt</TableCell>
+                      <TableCell className="text-gray-400">-</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="text-gray-300 font-medium mb-3">Livestock & Poultry</h4>
+              <div className="rounded-md border border-[#333333] overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-[#252525]">
+                    <TableRow>
+                      <TableHead className="text-gray-300">Animal Type</TableHead>
+                      <TableHead className="text-gray-300">Total Heads</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { animal: 'Chicken', heads: '1,481' },
+                      { animal: 'Swine', heads: '785' },
+                      { animal: 'Carabao', heads: '235' },
+                      { animal: 'Goat', heads: '198' }
+                    ].map((record, index) => (
+                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                        <TableCell className="text-gray-300">{record.animal}</TableCell>
+                        <TableCell className="text-gray-400">{record.heads}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="border-t-2 border-orange-500 bg-[#252525]">
+                      <TableCell className="text-white font-bold">TOTAL</TableCell>
+                      <TableCell className="text-white font-bold">2,699 heads</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Modal for Production Details */}
+        {selectedArea && modalType && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm">
+            <div className="bg-[#1e1e1e] p-8 rounded-2xl w-full max-w-5xl shadow-2xl transform transition-all duration-300 scale-100">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+                <h2 className="text-2xl font-bold text-white">
+                  {modalType === 'crops' ? '🌾 Crops Production' : '🐄 Animal Population'} – {selectedArea}
+                </h2>
+                <button
+                  onClick={() => {
+                    setSelectedArea(null);
+                    setModalType(null);
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <i className="fas fa-times text-xl"></i>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto rounded-lg border border-gray-700">
+                <table className="w-full text-sm border-collapse">
+                  <thead className="bg-[#252525] sticky top-0">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-gray-300">
+                        {modalType === 'crops' ? 'Crop Type' : 'Animal Type'}
+                      </th>
+                      {Object.keys(
+                        detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals']
+                      )[0] &&
+                        Object.keys(
+                          detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals'][
+                            Object.keys(detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals'])[0]
+                          ]
+                        )
+                          .filter((key) => key !== 'total')
+                          .map((purok, idx) => (
+                            <th key={idx} className="px-4 py-3 text-left text-gray-300">
+                              {purok}
+                            </th>
+                          ))}
+                      <th className="px-4 py-3 text-left text-gray-300">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(
+                      detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals']
+                    ).map(([name, values], idx) => (
+                      <tr
+                        key={idx}
+                        className={`border-t border-gray-700 ${
+                          idx % 2 === 0 ? 'bg-[#1e1e1e]' : 'bg-[#1b1b1b]'
+                        } hover:bg-[#2a2a2a] transition-colors`}
+                      >
+                        <td className="px-4 py-3 text-gray-200 font-medium">{name}</td>
+                        {Object.entries(values)
+                          .filter(([key]) => key !== 'total')
+                          .map(([key, val]) => (
+                            <td key={key} className="px-4 py-3 text-gray-400">
+                              {val}
+                            </td>
+                          ))}
+                        <td className="px-4 py-3 text-white font-bold">{values.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => {
+                    setSelectedArea(null);
+                    setModalType(null);
+                  }}
+                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-md text-white font-medium shadow-md transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

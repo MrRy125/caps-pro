@@ -7,11 +7,12 @@ import MapPage from './MapPage';
 import ImportPage from './ImportPage';
 import ExportPage from './ExportPage';
 import HistoryPage from './HistoryPage';
+import HelpPage from './HelpPage';
 
-const Content = ({ currentPage }) => {
+const Content = ({ currentPage, isSidebarCollapsed}) => {
   switch (currentPage) {
     case 'dashboard':
-      return <DashboardPage />;
+      return <DashboardPage isSidebarCollapsed={isSidebarCollapsed} />;
     case 'users':
       return <UserManagementPage />;
     case 'records':
@@ -26,8 +27,10 @@ const Content = ({ currentPage }) => {
       return <ExportPage />;
     case 'history':
       return <HistoryPage />;
+    case 'help':
+      return <HelpPage />;
     default:
-      return <DashboardPage />;
+      return <DashboardPage isSidebarCollapsed={isSidebarCollapsed} />;
   }
 };
 

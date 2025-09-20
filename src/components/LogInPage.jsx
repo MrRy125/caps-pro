@@ -1,69 +1,131 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
+import { Input } from "components/ui/input";
+import { Button } from "components/ui/button";
+import { Leaf, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleLogin }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#121212] p-4">
-        <Card className="w-full max-w-md bg-[#1e1e1e] border-0 shadow-lg backdrop-blur-lg bg-opacity-80">
-          <CardHeader className="space-y-1">
-            <div className="flex justify-center mb-4">
-              <img 
-                src="https://readdy.ai/api/search-image?query=Modern%20minimalist%20agriculture%20and%20fisheries%20logo%20design%20with%20a%20stylized%20leaf%20and%20fish%20icon%20in%20gradient%20green%20and%20blue%20colors%20on%20a%20dark%20background%2C%20professional%20and%20clean%20design%2C%20suitable%20for%20government%20agency&width=120&height=120&seq=1&orientation=squarish" 
-                alt="AgriTech Logo" 
-                className="h-20 w-20"
-              />
+    <div className="min-h-screen flex bg-[#1f2937]">
+      {/* Left Column - Background Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img 
+          src="/geo/agri-hero.jpg"
+          alt="Agricultural landscape" 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#14532d]/80 to-[#0e4d63]/60" />
+        <div className="absolute inset-0 flex items-center justify-center p-12">
+          <div className="text-center text-white">
+            <div className="flex items-center justify-center mb-6">
+              <Leaf className="h-16 w-16 text-[#f5b301]" />
             </div>
-            <CardTitle className="text-2xl font-bold text-center text-white">AgriTech Registry</CardTitle>
-            <CardDescription className="text-center text-gray-400">Enter your credentials to access the dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin}>
-              <div className="space-y-4">
-                {loginError && (
-                  <div className="bg-red-900/50 border border-red-800 text-red-100 px-4 py-2 rounded-md text-sm">
-                    {loginError}
-                  </div>
-                )}
+            <h1 className="text-4xl font-bold mb-4">Jasaan AgriTech Hub</h1>
+            <p className="text-xl opacity-90">
+              Empowering agricultural communities through digital innovation
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Column - Login Form */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-[#0f141d] to-[#1f2937]/20">
+        <div className="w-full max-w-md space-y-8">
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Leaf className="h-12 w-12 text-[#14532d]" />
+            </div>
+            <h1 className="text-2xl font-bold text-[#f7f7f1]">Jasaan AgriTech Hub</h1>
+            <p className="text-[#b8b89d]">Agricultural Management System</p>
+          </div>
+
+          <Card className="shadow-[0_10px_30px_-10px_rgba(20,83,45,0.3)] border-[#1f2937]/50 bg-[#0f141d]">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold text-[#f7f7f1]">Welcome Back</CardTitle>
+              <CardDescription className="text-[#b8b89d]">
+                Sign in to access the agricultural management system
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-4" onSubmit={handleLogin}>
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium text-gray-300">Email</label>
-                  <Input 
-                    id="email" 
-                    type="email" 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@agritech.gov"
-                    className="bg-[#2a2a2a] border-[#3a3a3a] text-white placeholder:text-gray-500"
                     required
+                    className="transition-all duration-300 border-[#1f2937] bg-[#0f141d] text-[#f7f7f1]"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="password" className="text-sm font-medium text-gray-300">Password</label>
-                    <a href="#" className="text-xs text-blue-400 hover:text-blue-300">Forgot password?</a>
+                  <label htmlFor="password" className="text-sm font-medium text-gray-300">Password</label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="pr-10 transition-all duration-300 border-[#1f2937] bg-[#0f141d] text-[#f7f7f1]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#b8b89d] hover:text-[#f7f7f1] transition-all duration-300"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
                   </div>
-                  <Input 
-                    id="password" 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="bg-[#2a2a2a] border-[#3a3a3a] text-white placeholder:text-gray-500"
-                    required
-                  />
                 </div>
-              </div>
-              <Button type="submit" className="w-full mt-6 bg-purple-900/30 hover:from-green-700 hover:to-blue-700 text-white !rounded-button whitespace-nowrap">
-                Sign In
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-xs text-gray-400">© 2025 AgriTech Registry System</p>
-          </CardFooter>
-        </Card>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="show-password"
+                    checked={showPassword}
+                    onChange={(e) => setShowPassword(e.target.checked)}
+                    className="border-gray-400"
+                  />
+                  <label
+                    htmlFor="show-password"
+                    className="text-sm font-medium text-gray-300"
+                  >
+                    Show Password
+                  </label>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full bg-[#14532d] hover:bg-[#1f7a40] shadow-[0_10px_30px_-10px_rgba(20,83,45,0.3)] text-white transition-all duration-300"
+                  disabled={loading}
+                >
+                  {loading ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <footer className="text-center text-sm text-[#b8b89d]">
+            <p>&copy; 2025 Jasaan AgriTech Hub. All rights reserved.</p>
+            <p className="mt-1">Barangay Agricultural Management System</p>
+          </footer>
+        </div>
       </div>
+    </div>
   );
 };
 

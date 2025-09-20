@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Input } from "components/ui/input";
+import { Button } from "components/ui/button";
+import { Badge } from "components/ui/badge";
 import { Plus, Minus, CheckCircle } from "lucide-react";
 
 const RegisterPage = () => {
@@ -28,6 +28,22 @@ const RegisterPage = () => {
   const [fishingActivities, setFishingActivities] = useState([]);
   const [workTypes, setWorkTypes] = useState([]);
   const [involvementTypes, setInvolvementTypes] = useState([]);
+  const [religion, setReligion] = useState('');
+  const [cornType, setCornType] = useState('');
+  const [isCornChecked, setIsCornChecked] = useState(false);
+  const [selectedBarangay, setSelectedBarangay] = useState('');
+  const [selectedPurok, setSelectedPurok] = useState('');
+  const [selectedBarangayPresent, setSelectedBarangayPresent] = useState('');
+  const [selectedPurokPresent, setSelectedPurokPresent] = useState('');
+
+  const getPurokOptions = (barangay) => {
+    if (barangay === 'Upper Jasaan') {
+      return ['Purok 5', 'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9'];
+    } else if (barangay === 'Lower Jasaan') {
+      return ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 10', 'Purok 11'];
+    }
+    return [];
+  };
 
   const addFormItem = (setter, currentArray) => {
     if (currentArray.length < 3) {
@@ -182,12 +198,22 @@ const RegisterPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium text-gray-400 mb-1 block">Religion</label>
-          <select className="w-full h-10 px-3 py-2 bg-[#252525] border border-[#3B3B3B] rounded-md text-gray-200">
+          <select 
+            className="w-full h-10 px-3 py-2 bg-[#252525] border border-[#3B3B3B] rounded-md text-gray-200"
+            value={religion}
+            onChange={(e) => setReligion(e.target.value)}
+          >
             <option value="">Select Religion</option>
             {religionOptions.map(religion => (
               <option key={religion} value={religion}>{religion}</option>
             ))}
           </select>
+          {religion === 'Others' && (
+            <Input 
+              className="bg-[#252525] border-[#3B3B3B] text-gray-200 mt-2" 
+              placeholder="Specify Religion" 
+            />
+          )}
         </div>
         <div>
           <label className="text-sm font-medium text-gray-400 mb-1 block">Civil Status</label>
@@ -461,22 +487,43 @@ const RegisterPage = () => {
         <h3 className="text-gray-200 font-medium mb-4">Permanent Address</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium text-gray-400 mb-1 block">House/Lot/Bldg. No/Purok</label>
-            <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="House/Lot/Bldg. No/Purok" />
+            <label className="text-sm font-medium text-gray-400 mb-1 block">Barangay</label>
+            <select 
+              className="w-full h-10 px-3 py-2 bg-[#1A1A1A] border border-[#3B3B3B] rounded-md text-gray-200"
+              value={selectedBarangay}
+              onChange={(e) => {
+                setSelectedBarangay(e.target.value);
+                setSelectedPurok(''); // Reset purok when barangay changes
+              }}
+            >
+              <option value="">Select Barangay</option>
+              <option value="Upper Jasaan">Upper Jasaan</option>
+              <option value="Lower Jasaan">Lower Jasaan</option>
+            </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-400 mb-1 block">Street/Sitio/Subdv.</label>
-            <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Street/Sitio/Subdv." />
+            <label className="text-sm font-medium text-gray-400 mb-1 block">Purok</label>
+            <select 
+              className="w-full h-10 px-3 py-2 bg-[#1A1A1A] border border-[#3B3B3B] rounded-md text-gray-200"
+              value={selectedPurok}
+              onChange={(e) => setSelectedPurok(e.target.value)}
+              disabled={!selectedBarangay}
+            >
+              <option value="">Select Purok</option>
+              {getPurokOptions(selectedBarangay).map(purok => (
+                <option key={purok} value={purok}>{purok}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label className="text-sm font-medium text-gray-400 mb-1 block">Barangay</label>
-            <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Barangay" />
-          </div>
-          <div>
             <label className="text-sm font-medium text-gray-400 mb-1 block">Municipality/City</label>
             <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Municipality/City" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-400 mb-1 block">Street/Sitio/Subdv.</label>
+            <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Street/Sitio/Subdv." />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -509,22 +556,43 @@ const RegisterPage = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-400 mb-1 block">House/Lot/Bldg. No/Purok</label>
-                <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="House/Lot/Bldg. No/Purok" />
+                <label className="text-sm font-medium text-gray-400 mb-1 block">Barangay</label>
+                <select 
+                  className="w-full h-10 px-3 py-2 bg-[#1A1A1A] border border-[#3B3B3B] rounded-md text-gray-200"
+                  value={selectedBarangayPresent}
+                  onChange={(e) => {
+                    setSelectedBarangayPresent(e.target.value);
+                    setSelectedPurokPresent(''); // Reset purok when barangay changes
+                  }}
+                >
+                  <option value="">Select Barangay</option>
+                  <option value="Upper Jasaan">Upper Jasaan</option>
+                  <option value="Lower Jasaan">Lower Jasaan</option>
+                </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-400 mb-1 block">Street/Sitio/Subdv.</label>
-                <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Street/Sitio/Subdv." />
+                <label className="text-sm font-medium text-gray-400 mb-1 block">Purok</label>
+                <select 
+                  className="w-full h-10 px-3 py-2 bg-[#1A1A1A] border border-[#3B3B3B] rounded-md text-gray-200"
+                  value={selectedPurokPresent}
+                  onChange={(e) => setSelectedPurokPresent(e.target.value)}
+                  disabled={!selectedBarangayPresent}
+                >
+                  <option value="">Select Purok</option>
+                  {getPurokOptions(selectedBarangayPresent).map(purok => (
+                    <option key={purok} value={purok}>{purok}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="text-sm font-medium text-gray-400 mb-1 block">Barangay</label>
-                <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Barangay" />
-              </div>
-              <div>
                 <label className="text-sm font-medium text-gray-400 mb-1 block">Municipality/City</label>
                 <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Municipality/City" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-400 mb-1 block">Street/Sitio/Subdv.</label>
+                <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200" placeholder="Street/Sitio/Subdv." />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -556,11 +624,49 @@ const RegisterPage = () => {
             <label className="text-gray-400">Rice</label>
             <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200 w-24" placeholder="Value" />
           </div>
-          <div className="flex items-center space-x-3">
-            <input type="checkbox" className="h-4 w-4 text-blue-600" />
-            <label className="text-gray-400">Corn</label>
-            <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200 w-24" placeholder="Value" />
-          </div>
+          <div className="space-y-2">
+  <div className="flex items-center space-x-3">
+    <input 
+      type="checkbox" 
+      className="h-4 w-4 text-blue-600"
+      checked={isCornChecked}
+      onChange={(e) => {
+        setIsCornChecked(e.target.checked);
+        if (!e.target.checked) {
+          setCornType(''); // Reset corn type when unchecked
+        }
+      }}
+    />
+    <label className="text-gray-400">Corn</label>
+    <Input className="bg-[#1A1A1A] border-[#3B3B3B] text-gray-200 w-24" placeholder="Value" />
+    </div>
+    {isCornChecked && (
+      <div className="ml-7 flex items-center space-x-4">
+        <div className="flex items-center">
+          <input 
+            type="radio" 
+            name="cornType" 
+            value="yellow"
+            checked={cornType === 'yellow'}
+            onChange={(e) => setCornType(e.target.value)}
+            className="h-3 w-3 text-blue-600" 
+          />
+          <label className="ml-2 text-gray-400 text-sm">Yellow</label>
+        </div>
+        <div className="flex items-center">
+          <input 
+            type="radio" 
+            name="cornType" 
+            value="white"
+            checked={cornType === 'white'}
+            onChange={(e) => setCornType(e.target.value)}
+            className="h-3 w-3 text-blue-600" 
+          />
+          <label className="ml-2 text-gray-400 text-sm">White</label>
+        </div>
+      </div>
+    )}
+  </div>
         </div>
 
         {/* Other Crops */}
@@ -1463,4 +1569,3 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
-
