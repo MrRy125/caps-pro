@@ -93,7 +93,7 @@ const Sidebar = ({ currentPage, setCurrentPage, handleLogout, isOpen, onClose, o
       <div className="p-4 border-t border-[#333333]">
         <div className={`flex ${isCollapsed ? 'flex-col items-center space-y-3' : 'items-center'}`}>
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white text-xs">
+            <AvatarFallback className="bg-purple-700 text-white text-xs">
               JD
             </AvatarFallback>
           </Avatar>
@@ -118,6 +118,7 @@ const Sidebar = ({ currentPage, setCurrentPage, handleLogout, isOpen, onClose, o
 
 
 export default Sidebar;
+
 
 
 
