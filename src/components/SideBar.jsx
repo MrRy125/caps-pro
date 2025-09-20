@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Avatar, AvatarFallback } from "components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Sidebar = ({ currentPage, setCurrentPage, handleLogout, isOpen, onClose, onCollapse }) => {
@@ -115,5 +115,6 @@ const Sidebar = ({ currentPage, setCurrentPage, handleLogout, isOpen, onClose, o
     </div>
   );
 };
+
 
 export default Sidebar;
