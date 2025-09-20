@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Button } from "components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Leaf, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleLogin }) => {
@@ -130,3 +130,4 @@ const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleL
 };
 
 export default LoginPage;
+
