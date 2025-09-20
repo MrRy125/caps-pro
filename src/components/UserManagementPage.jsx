@@ -225,7 +225,7 @@ const UserManagementPage = () => {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
-                          <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white">
+                          <AvatarFallback className="bg-purple-700 text-white">
                             {user.avatar}
                           </AvatarFallback>
                         </Avatar>
@@ -453,5 +453,6 @@ const UserManagementPage = () => {
     </div>
   );
 };
+
 
 export default UserManagementPage;
