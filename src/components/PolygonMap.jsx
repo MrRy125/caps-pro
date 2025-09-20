@@ -194,16 +194,7 @@ export default function PolygonMap({ onPolygonClick, selectedPurok, isZoomed, on
           </div>
         </div>
       )}
-
-      {/* Instructions overlay when not zoomed */}
-      {!isZoomed && (
-        <div className="absolute top-4 left-4 z-[1000] bg-black/70 text-white px-3 py-2 rounded-lg shadow-lg">
-          <div className="flex items-center gap-2 text-sm">
-            <i className="fas fa-hand-pointer text-blue-400"></i>
-            <span>Click on a purok to zoom and view data</span>
-          </div>
-        </div>
-      )}
     </div>
   );
+
 }
