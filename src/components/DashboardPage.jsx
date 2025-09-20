@@ -636,181 +636,9 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
         </Card>
       </div>
 
-      {/* Summary Tables by Barangay */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Lower Jasaan Summary */}
-        <Card className="bg-[#1e1e1e] border-0 shadow-md">
-          <CardHeader>
-            <CardTitle className="text-white text-lg">Lower Jasaan Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="text-gray-300 font-medium mb-3">Crops Production</h4>
-              <div className="rounded-md border border-[#333333] overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-[#252525]">
-                    <TableRow>
-                      <TableHead className="text-gray-300">Crop Type</TableHead>
-                      <TableHead className="text-gray-300">Area (ha)</TableHead>
-                      <TableHead className="text-gray-300">Production (mt)</TableHead>
-                      <TableHead className="text-gray-300">Type</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {[
-                      { crop: 'Rice', area: '245.5', production: '982.1', type: 'Irrigated' },
-                      { crop: 'Rice', area: '156.8', production: '548.2', type: 'Rainfed' },
-                      { crop: 'Corn', area: '189.3', production: '456.7', type: 'Rainfed' },
-                      { crop: 'Coconut', area: '234.2', production: '298.5', type: 'Rainfed' }
-                    ].map((record, index) => (
-                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
-                        <TableCell className="text-gray-300">{record.crop}</TableCell>
-                        <TableCell className="text-gray-400">{record.area}</TableCell>
-                        <TableCell className="text-gray-400">{record.production}</TableCell>
-                        <TableCell className="text-gray-400">{record.type}</TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="border-t-2 border-blue-500 bg-[#252525]">
-                      <TableCell className="text-white font-bold">TOTAL</TableCell>
-                      <TableCell className="text-white font-bold">825.8 ha</TableCell>
-                      <TableCell className="text-white font-bold">2,285.5 mt</TableCell>
-                      <TableCell className="text-gray-400">-</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-gray-300 font-medium mb-3">Livestock & Poultry</h4>
-              <div className="rounded-md border border-[#333333] overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-[#252525]">
-                    <TableRow>
-                      <TableHead className="text-gray-300">Animal Type</TableHead>
-                      <TableHead className="text-gray-300">Total Heads</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {[
-                      { animal: 'Chicken', heads: '1,764' },
-                      { animal: 'Swine', heads: '1,091' },
-                      { animal: 'Carabao', heads: '332' },
-                      { animal: 'Goat', heads: '245' }
-                    ].map((record, index) => (
-                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
-                        <TableCell className="text-gray-300">{record.animal}</TableCell>
-                        <TableCell className="text-gray-400">{record.heads}</TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="border-t-2 border-orange-500 bg-[#252525]">
-                      <TableCell className="text-white font-bold">TOTAL</TableCell>
-                      <TableCell className="text-white font-bold">3,432 heads</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      
 
-        {/* Upper Jasaan Summary */}
-        <Card className="bg-[#1e1e1e] border-0 shadow-md">
-          <CardHeader>
-            <CardTitle className="text-white text-lg">Upper Jasaan Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h4 className="text-gray-300 font-medium mb-3">Crops Production</h4>
-              <div className="rounded-md border border-[#333333] overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-[#252525]">
-                    <TableRow>
-                      <TableHead className="text-gray-300">Crop Type</TableHead>
-                      <TableHead className="text-gray-300">Area (ha)</TableHead>
-                      <TableHead className="text-gray-300">Production (mt)</TableHead>
-                      <TableHead className="text-gray-300">Type</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {[
-                      { crop: 'Rice', area: '312.7', production: '1,234.8', type: 'Irrigated' },
-                      { crop: 'Rice', area: '189.4', production: '678.9', type: 'Rainfed' },
-                      { crop: 'Corn', area: '267.8', production: '612.3', type: 'Rainfed' },
-                      { crop: 'Coconut', area: '298.1', production: '387.6', type: 'Rainfed' }
-                    ].map((record, index) => (
-                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
-                        <TableCell className="text-gray-300">{record.crop}</TableCell>
-                        <TableCell className="text-gray-400">{record.area}</TableCell>
-                        <TableCell className="text-gray-400">{record.production}</TableCell>
-                        <TableCell className="text-gray-400">{record.type}</TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="border-t-2 border-blue-500 bg-[#252525]">
-                      <TableCell className="text-white font-bold">TOTAL</TableCell>
-                      <TableCell className="text-white font-bold">1,068.0 ha</TableCell>
-                      <TableCell className="text-white font-bold">2,913.6 mt</TableCell>
-                      <TableCell className="text-gray-400">-</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-gray-300 font-medium mb-3">Livestock & Poultry</h4>
-              <div className="rounded-md border border-[#333333] overflow-hidden">
-                <Table>
-                  <TableHeader className="bg-[#252525]">
-                    <TableRow>
-                      <TableHead className="text-gray-300">Animal Type</TableHead>
-                      <TableHead className="text-gray-300">Total Heads</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {[
-                      { animal: 'Chicken', heads: '1,481' },
-                      { animal: 'Swine', heads: '785' },
-                      { animal: 'Carabao', heads: '235' },
-                      { animal: 'Goat', heads: '198' }
-                    ].map((record, index) => (
-                      <TableRow key={index} className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
-                        <TableCell className="text-gray-300">{record.animal}</TableCell>
-                        <TableCell className="text-gray-400">{record.heads}</TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="border-t-2 border-orange-500 bg-[#252525]">
-                      <TableCell className="text-white font-bold">TOTAL</TableCell>
-                      <TableCell className="text-white font-bold">2,699 heads</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Modal for Production Details */}
-        {selectedArea && modalType && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm">
-            <div className="bg-[#1e1e1e] p-8 rounded-2xl w-full max-w-5xl shadow-2xl transform transition-all duration-300 scale-100">
-              {/* Header */}
-              <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
-                <h2 className="text-2xl font-bold text-white">
-                  {modalType === 'crops' ? '🌾 Crops Production' : '🐄 Animal Population'} – {selectedArea}
-                </h2>
-                <button
-                  onClick={() => {
-                    setSelectedArea(null);
-                    setModalType(null);
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  <i className="fas fa-times text-xl"></i>
-                </button>
-              </div>
-
-     {/* Summary Tables by Barangay - Replace the existing grid with these two cards */}
+{/* Summary Tables by Barangay - Replace the existing grid with these two cards */}
       <div className="space-y-6">
         {/* Crops Production Summary */}
         <Card className="bg-[#1e1e1e] border-0 shadow-md">
@@ -955,6 +783,76 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
         </Card>
       </div>
 
+        {/* Modal for Production Details */}
+        {selectedArea && modalType && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm">
+            <div className="bg-[#1e1e1e] p-8 rounded-2xl w-full max-w-5xl shadow-2xl transform transition-all duration-300 scale-100">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+                <h2 className="text-2xl font-bold text-white">
+                  {modalType === 'crops' ? '🌾 Crops Production' : '🐄 Animal Population'} – {selectedArea}
+                </h2>
+                <button
+                  onClick={() => {
+                    setSelectedArea(null);
+                    setModalType(null);
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <i className="fas fa-times text-xl"></i>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto rounded-lg border border-gray-700">
+                <table className="w-full text-sm border-collapse">
+                  <thead className="bg-[#252525] sticky top-0">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-gray-300">
+                        {modalType === 'crops' ? 'Crop Type' : 'Animal Type'}
+                      </th>
+                      {Object.keys(
+                        detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals']
+                      )[0] &&
+                        Object.keys(
+                          detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals'][
+                            Object.keys(detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals'])[0]
+                          ]
+                        )
+                          .filter((key) => key !== 'total')
+                          .map((purok, idx) => (
+                            <th key={idx} className="px-4 py-3 text-left text-gray-300">
+                              {purok}
+                            </th>
+                          ))}
+                      <th className="px-4 py-3 text-left text-gray-300">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(
+                      detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals']
+                    ).map(([name, values], idx) => (
+                      <tr
+                        key={idx}
+                        className={`border-t border-gray-700 ${
+                          idx % 2 === 0 ? 'bg-[#1e1e1e]' : 'bg-[#1b1b1b]'
+                        } hover:bg-[#2a2a2a] transition-colors`}
+                      >
+                        <td className="px-4 py-3 text-gray-200 font-medium">{name}</td>
+                        {Object.entries(values)
+                          .filter(([key]) => key !== 'total')
+                          .map(([key, val]) => (
+                            <td key={key} className="px-4 py-3 text-gray-400">
+                              {val}
+                            </td>
+                          ))}
+                        <td className="px-4 py-3 text-white font-bold">{values.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
               {/* Footer */}
               <div className="mt-6 flex justify-end">
                 <button
@@ -977,4 +875,5 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
 
 
 export default DashboardPage;
+
 
