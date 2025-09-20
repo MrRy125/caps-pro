@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table";
-import { Avatar, AvatarFallback } from "components/ui/avatar";
-import { Badge } from "components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 const UserManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -456,3 +456,4 @@ const UserManagementPage = () => {
 
 
 export default UserManagementPage;
+
