@@ -1,8 +1,8 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "components/ui/dropdown-menu";
-import { Calendar } from "components/ui/calendar";
-import { ScrollArea } from "components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Calendar } from "@/components/ui/calendar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, setShowCalendar, date, setDate, showNotifications, setShowNotifications, unreadNotifications, handleLogout, setCurrentPage }) => {
   
@@ -144,5 +144,6 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
           </header>
   );
 };
+
 
 export default TopNavigation;
