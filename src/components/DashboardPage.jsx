@@ -810,55 +810,150 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
                 </button>
               </div>
 
-              {/* Table */}
-              <div className="overflow-x-auto rounded-lg border border-gray-700">
-                <table className="w-full text-sm border-collapse">
-                  <thead className="bg-[#252525] sticky top-0">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-gray-300">
-                        {modalType === 'crops' ? 'Crop Type' : 'Animal Type'}
-                      </th>
-                      {Object.keys(
-                        detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals']
-                      )[0] &&
-                        Object.keys(
-                          detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals'][
-                            Object.keys(detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals'])[0]
-                          ]
-                        )
-                          .filter((key) => key !== 'total')
-                          .map((purok, idx) => (
-                            <th key={idx} className="px-4 py-3 text-left text-gray-300">
-                              {purok}
-                            </th>
-                          ))}
-                      <th className="px-4 py-3 text-left text-gray-300">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(
-                      detailedData[selectedArea][modalType === 'crops' ? 'crops' : 'animals']
-                    ).map(([name, values], idx) => (
-                      <tr
-                        key={idx}
-                        className={`border-t border-gray-700 ${
-                          idx % 2 === 0 ? 'bg-[#1e1e1e]' : 'bg-[#1b1b1b]'
-                        } hover:bg-[#2a2a2a] transition-colors`}
-                      >
-                        <td className="px-4 py-3 text-gray-200 font-medium">{name}</td>
-                        {Object.entries(values)
-                          .filter(([key]) => key !== 'total')
-                          .map(([key, val]) => (
-                            <td key={key} className="px-4 py-3 text-gray-400">
-                              {val}
-                            </td>
-                          ))}
-                        <td className="px-4 py-3 text-white font-bold">{values.total}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+     {/* Summary Tables by Barangay - Replace the existing grid with these two cards */}
+      <div className="space-y-6">
+        {/* Crops Production Summary */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Crops Production Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded-md border border-[#333333]">
+              <Table>
+                <TableHeader className="bg-[#252525]">
+                  <TableRow>
+                    <TableHead className="text-gray-300 sticky left-0 bg-[#252525] z-10 min-w-[100px]">Barangay</TableHead>
+                    <TableHead className="text-gray-300 text-center border-r border-[#333333]" colSpan="4">Rice</TableHead>
+                    <TableHead className="text-gray-300 text-center border-r border-[#333333]" colSpan="4">Corn</TableHead>
+                    <TableHead className="text-gray-300 text-center" colSpan="2">Others</TableHead>
+                  </TableRow>
+                  <TableRow>
+                    <TableHead className="text-gray-400 sticky left-0 bg-[#252525] z-10"></TableHead>
+                    <TableHead className="text-gray-400 text-center border-r border-[#444444]" colSpan="2">Irrigated</TableHead>
+                    <TableHead className="text-gray-400 text-center border-r border-[#333333]" colSpan="2">Rainfed</TableHead>
+                    <TableHead className="text-gray-400 text-center border-r border-[#444444]" colSpan="2">Yellow</TableHead>
+                    <TableHead className="text-gray-400 text-center border-r border-[#333333]" colSpan="2">White</TableHead>
+                    <TableHead className="text-gray-400 text-center">ha</TableHead>
+                    <TableHead className="text-gray-400 text-center">prd'n</TableHead>
+                  </TableRow>
+                  <TableRow>
+                    <TableHead className="text-gray-400 sticky left-0 bg-[#252525] z-10"></TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs">ha</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs border-r border-[#444444]">prd'n</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs">ha</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs border-r border-[#333333]">prd'n</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs">ha</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs border-r border-[#444444]">prd'n</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs">ha</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs border-r border-[#333333]">prd'n</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs">ha</TableHead>
+                    <TableHead className="text-gray-400 text-center text-xs">prd'n</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                    <TableCell className="text-gray-300 sticky left-0 bg-[#1e1e1e] font-medium">Upper</TableCell>
+                    <TableCell className="text-gray-400 text-center">312.7</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#444444]">1,234.8</TableCell>
+                    <TableCell className="text-gray-400 text-center">189.4</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#333333]">678.9</TableCell>
+                    <TableCell className="text-gray-400 text-center">167.2</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#444444]">389.5</TableCell>
+                    <TableCell className="text-gray-400 text-center">100.6</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#333333]">222.8</TableCell>
+                    <TableCell className="text-gray-400 text-center">298.1</TableCell>
+                    <TableCell className="text-gray-400 text-center">387.6</TableCell>
+                  </TableRow>
+                  <TableRow className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                    <TableCell className="text-gray-300 sticky left-0 bg-[#1e1e1e] font-medium">Lower</TableCell>
+                    <TableCell className="text-gray-400 text-center">245.5</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#444444]">982.1</TableCell>
+                    <TableCell className="text-gray-400 text-center">156.8</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#333333]">548.2</TableCell>
+                    <TableCell className="text-gray-400 text-center">123.8</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#444444]">298.3</TableCell>
+                    <TableCell className="text-gray-400 text-center">65.5</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#333333]">158.4</TableCell>
+                    <TableCell className="text-gray-400 text-center">234.2</TableCell>
+                    <TableCell className="text-gray-400 text-center">298.5</TableCell>
+                  </TableRow>
+                  <TableRow className="border-t-2 border-blue-500 bg-[#252525]">
+                    <TableCell className="text-white font-bold sticky left-0 bg-[#252525]">Total</TableCell>
+                    <TableCell className="text-white font-bold text-center">558.2</TableCell>
+                    <TableCell className="text-white font-bold text-center border-r border-[#444444]">2,216.9</TableCell>
+                    <TableCell className="text-white font-bold text-center">346.2</TableCell>
+                    <TableCell className="text-white font-bold text-center border-r border-[#333333]">1,227.1</TableCell>
+                    <TableCell className="text-white font-bold text-center">291.0</TableCell>
+                    <TableCell className="text-white font-bold text-center border-r border-[#444444]">687.8</TableCell>
+                    <TableCell className="text-white font-bold text-center">166.1</TableCell>
+                    <TableCell className="text-white font-bold text-center border-r border-[#333333]">381.2</TableCell>
+                    <TableCell className="text-white font-bold text-center">532.3</TableCell>
+                    <TableCell className="text-white font-bold text-center">686.1</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Livestock & Poultry Summary */}
+        <Card className="bg-[#1e1e1e] border-0 shadow-md">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Livestock & Poultry Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded-md border border-[#333333]">
+              <Table>
+                <TableHeader className="bg-[#252525]">
+                  <TableRow>
+                    <TableHead className="text-gray-300 sticky left-0 bg-[#252525] z-10 min-w-[100px]">Barangay</TableHead>
+                    <TableHead className="text-gray-300 text-center border-r border-[#333333]" colSpan="3">Livestock</TableHead>
+                    <TableHead className="text-gray-300 text-center" colSpan="3">Poultry</TableHead>
+                  </TableRow>
+                  <TableRow>
+                    <TableHead className="text-gray-400 sticky left-0 bg-[#252525] z-10"></TableHead>
+                    <TableHead className="text-gray-400 text-center">Cow</TableHead>
+                    <TableHead className="text-gray-400 text-center">Pig</TableHead>
+                    <TableHead className="text-gray-400 text-center border-r border-[#333333]">Others</TableHead>
+                    <TableHead className="text-gray-400 text-center">Chicken</TableHead>
+                    <TableHead className="text-gray-400 text-center">Duck</TableHead>
+                    <TableHead className="text-gray-400 text-center">Others</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                    <TableCell className="text-gray-300 sticky left-0 bg-[#1e1e1e] font-medium">Upper</TableCell>
+                    <TableCell className="text-gray-400 text-center">332</TableCell>
+                    <TableCell className="text-gray-400 text-center">785</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#333333]">433</TableCell>
+                    <TableCell className="text-gray-400 text-center">1,481</TableCell>
+                    <TableCell className="text-gray-400 text-center">89</TableCell>
+                    <TableCell className="text-gray-400 text-center">67</TableCell>
+                  </TableRow>
+                  <TableRow className="border-t border-[#333333] hover:bg-[#252525] transition-colors">
+                    <TableCell className="text-gray-300 sticky left-0 bg-[#1e1e1e] font-medium">Lower</TableCell>
+                    <TableCell className="text-gray-400 text-center">475</TableCell>
+                    <TableCell className="text-gray-400 text-center">1,091</TableCell>
+                    <TableCell className="text-gray-400 text-center border-r border-[#333333]">495</TableCell>
+                    <TableCell className="text-gray-400 text-center">1,764</TableCell>
+                    <TableCell className="text-gray-400 text-center">134</TableCell>
+                    <TableCell className="text-gray-400 text-center">98</TableCell>
+                  </TableRow>
+                  <TableRow className="border-t-2 border-orange-500 bg-[#252525]">
+                    <TableCell className="text-white font-bold sticky left-0 bg-[#252525]">Total</TableCell>
+                    <TableCell className="text-white font-bold text-center">807</TableCell>
+                    <TableCell className="text-white font-bold text-center">1,876</TableCell>
+                    <TableCell className="text-white font-bold text-center border-r border-[#333333]">928</TableCell>
+                    <TableCell className="text-white font-bold text-center">3,245</TableCell>
+                    <TableCell className="text-white font-bold text-center">223</TableCell>
+                    <TableCell className="text-white font-bold text-center">165</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
               {/* Footer */}
               <div className="mt-6 flex justify-end">
@@ -882,3 +977,4 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
 
 
 export default DashboardPage;
+
