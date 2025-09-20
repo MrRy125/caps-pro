@@ -869,11 +869,11 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
           </div>
         )}
       </div>
-    </div>
   );
 };
 
 
 export default DashboardPage;
+
 
 
