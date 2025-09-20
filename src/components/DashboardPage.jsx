@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import * as echarts from 'echarts';
 
 const DashboardPage = ({ isSidebarCollapsed }) => {
@@ -879,5 +879,6 @@ const DashboardPage = ({ isSidebarCollapsed }) => {
     </div>
   );
 };
+
 
 export default DashboardPage;
