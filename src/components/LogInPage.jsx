@@ -21,10 +21,12 @@ const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleL
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <div className="text-center text-white">
             <div className="flex items-center justify-center mb-6">
-              <Leaf className="h-16 w-16 text-[#f5b301]" />
+              <Leaf className="h-16 w-16 text-[#f5b301] drop-shadow-[0_0_15px_rgba(0,0,0,0.9)]" />
             </div>
-            <h1 className="text-4xl font-bold mb-4">Jasaan AgriTech Hub</h1>
-            <p className="text-xl opacity-90">
+            <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+              Jasaan AgriTech Hub
+            </h1>
+            <p className="text-xl opacity-90 text-gray-200 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
               Empowering agricultural communities through digital innovation
             </p>
           </div>
@@ -130,4 +132,5 @@ const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleL
 };
 
 export default LoginPage;
+
 
