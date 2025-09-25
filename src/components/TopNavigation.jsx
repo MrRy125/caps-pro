@@ -105,7 +105,7 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
                 <DropdownMenuTrigger asChild>
                   <button className="cursor-pointer">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white text-xs">
+                      <AvatarFallback className="bg-purple-700 text-white text-xs">
                         JD
                       </AvatarFallback>
                     </Avatar>
@@ -147,3 +147,4 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
 
 
 export default TopNavigation;
+
