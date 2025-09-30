@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
+import { Input } from "components/ui/input";
+import { Button } from "components/ui/button";
 import { Leaf, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleLogin }) => {
@@ -20,15 +20,17 @@ const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleL
         <div className="absolute inset-0 bg-gradient-to-br from-[#14532d]/80 to-[#0e4d63]/60" />
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <div className="text-center text-white">
-            <div className="flex items-center justify-center mb-6">
-              <Leaf className="h-16 w-16 text-[#f5b301] drop-shadow-[0_0_15px_rgba(0,0,0,0.9)]" />
-            </div>
-            <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
-              Jasaan AgriTech Hub
-            </h1>
-            <p className="text-xl opacity-90 text-gray-200 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
-              Empowering agricultural communities through digital innovation
-            </p>
+          <div className="flex items-center justify-center mb-6">
+            <Leaf className="h-16 w-16 text-[#f5b301] drop-shadow-[0_0_15px_rgba(0,0,0,0.9)]" />
+          </div>
+          <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+            Jasaan AgriTech Hub
+          </h1>
+          <p className="text-xl opacity-90 text-gray-200 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
+            Empowering agricultural communities through digital innovation
+          </p>
+
+
           </div>
         </div>
       </div>
@@ -132,7 +134,3 @@ const LoginPage = ({ email, setEmail, password, setPassword, loginError, handleL
 };
 
 export default LoginPage;
-
-
-
-

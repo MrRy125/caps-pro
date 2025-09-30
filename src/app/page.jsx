@@ -1,130 +1,35 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import LoginPage from '@/components/LogInPage';
-import Sidebar from '@/components/SideBar';
-import TopNavigation from '@/components/TopNavigation';
-import Content from '@/components/Content';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome
-import Footer from '@/components/Footer';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-const App = () => {
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState('admin@agritech.gov');
-  const [password, setPassword] = useState('password');
-  const [loginError, setLoginError] = useState('');
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(5);
-  const [date, setDate] = useState(new Date());
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const closeSidebar = () => setIsSidebarOpen(false);
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
+export default function Home() {
+  const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // safe to use window here
-      console.log(window.innerWidth);
+    // Check if user is logged in
+    if (typeof window !== "undefined") {
+      const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
+
+      if (isLoggedIn) {
+        router.push("/dashboard");
+      } else {
+        router.push("/login");
+      }
+
+      setIsChecking(false);
     }
-  }, []);
-  
+  }, [router]);
 
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isLoggedIn && currentPage === 'dashboard') {
-      setTimeout(() => {
-        initCharts();
-      }, 100);
-    }
-  }, [isLoggedIn, currentPage]);
-
-  
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (email === 'admin@agritech.gov' && password === 'password') {
-      setIsLoggedIn(true);
-      setLoginError('');
-    } else {
-      setLoginError('Invalid email or password');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setCurrentPage('dashboard');
-  };
-
-  if (!isLoggedIn) {
-    return <LoginPage 
-      email={email}
-      setEmail={setEmail}
-      password={password}
-      setPassword={setPassword}
-      loginError={loginError}
-      handleLogin={handleLogin}
-    />;
+  // Show loading state while redirecting
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen bg-[#121212] text-white">
-      <div className="flex h-screen overflow-hidden">
-        {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
-            onClick={closeSidebar}
-          />
-        )}
-        <Sidebar 
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          handleLogout={handleLogout}
-          isOpen={isSidebarOpen}
-          onClose={closeSidebar}
-          onCollapse={setIsSidebarCollapsed}   // 🔥 get collapse state
-        />
-
-        <div className="flex-1 flex flex-col overflow-hidden">
-        <TopNavigation 
-          toggleSidebar={toggleSidebar}
-          currentPage={currentPage}
-          currentTime={currentTime}
-          showCalendar={showCalendar}
-          setShowCalendar={setShowCalendar}
-          date={date}
-          setDate={setDate}
-          showNotifications={showNotifications}
-          setShowNotifications={setShowNotifications}
-          unreadNotifications={unreadNotifications}
-          handleLogout={handleLogout}
-          setCurrentPage={setCurrentPage}  // Add this line
-        />
-          <main className={`flex-1 overflow-y-auto overflow-x-hidden bg-[#121212] transition-all duration-300
-    ${isSidebarCollapsed ? "ml-1" : ""}`}>
-            <Content 
-              currentPage={currentPage}
-              isSidebarCollapsed={isSidebarCollapsed}
-            />
-            <Footer/>
-          </main>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+  return null;
+}

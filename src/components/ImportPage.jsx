@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "components/ui/card";
+import { Button } from "components/ui/button";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from 'components/ui/table';
+import { ScrollArea } from "components/ui/scroll-area";
+import { Badge } from 'components/ui/badge';
 
 const ImportPage = () => {
   return (
@@ -68,6 +68,5 @@ const ImportPage = () => {
       </div>
   );
 };
-
 
 export default ImportPage;

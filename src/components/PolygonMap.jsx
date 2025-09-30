@@ -194,7 +194,9 @@ export default function PolygonMap({ onPolygonClick, selectedPurok, isZoomed, on
           </div>
         </div>
       )}
+
+      {/* Instructions overlay when not zoomed */}
+      
     </div>
   );
-
 }

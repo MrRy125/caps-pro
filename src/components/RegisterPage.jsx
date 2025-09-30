@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Input } from "components/ui/input";
+import { Button } from "components/ui/button";
+import { Badge } from "components/ui/badge";
 import { Plus, Minus, CheckCircle } from "lucide-react";
 
 const RegisterPage = () => {
@@ -1567,6 +1567,5 @@ const RegisterPage = () => {
     </div>
   );
 };
-
 
 export default RegisterPage;

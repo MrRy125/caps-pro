@@ -1,8 +1,8 @@
 import React from 'react';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Calendar } from "@/components/ui/calendar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "components/ui/dropdown-menu";
+import { Calendar } from "components/ui/calendar";
+import { ScrollArea } from "components/ui/scroll-area";
 
 const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, setShowCalendar, date, setDate, showNotifications, setShowNotifications, unreadNotifications, handleLogout, setCurrentPage }) => {
   
@@ -105,7 +105,7 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
                 <DropdownMenuTrigger asChild>
                   <button className="cursor-pointer">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-purple-700 text-white text-xs">
+                      <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white text-xs">
                         JD
                       </AvatarFallback>
                     </Avatar>
@@ -145,6 +145,4 @@ const TopNavigation = ({ toggleSidebar, currentPage, currentTime, showCalendar, 
   );
 };
 
-
 export default TopNavigation;
-

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Button } from "components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "components/ui/table";
+import { Avatar, AvatarFallback } from "components/ui/avatar";
+import { Badge } from "components/ui/badge";
 
 const UserManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -225,7 +225,7 @@ const UserManagementPage = () => {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
-                          <AvatarFallback className="bg-purple-700 text-white">
+                          <AvatarFallback className="bg-gradient-to-br from-green-700 to-blue-700 text-white">
                             {user.avatar}
                           </AvatarFallback>
                         </Avatar>
@@ -454,6 +454,4 @@ const UserManagementPage = () => {
   );
 };
 
-
 export default UserManagementPage;
-

@@ -1,33 +1,30 @@
-import React from 'react';
-import DashboardPage from './DashboardPage';
-import UserManagementPage from './UserManagementPage';
-import RsbsaRecordsPage from './RsbsaRecordsPage';
-import RegisterPage from './RegisterPage';
-import MapPage from './MapPage';
-import ImportPage from './ImportPage';
-import ExportPage from './ExportPage';
-import HistoryPage from './HistoryPage';
-import HelpPage from './HelpPage';
+import React from "react";
+import DashboardPage from "./DashboardPage";
+import UserManagementPage from "./UserManagementPage";
+import RsbsaRecordsPage from "./RsbsaRecordsPage";
+import RegisterPage from "./RegisterPage";
+import MapPage from "./MapPage";
+import ImportPage from "./ImportPage";
+import HistoryPage from "./HistoryPage";
+import HelpPage from "./HelpPage";
 
-const Content = ({ currentPage, isSidebarCollapsed}) => {
+const Content = ({ currentPage, isSidebarCollapsed }) => {
   switch (currentPage) {
-    case 'dashboard':
+    case "dashboard":
       return <DashboardPage isSidebarCollapsed={isSidebarCollapsed} />;
-    case 'users':
+    case "users":
       return <UserManagementPage />;
-    case 'records':
+    case "records":
       return <RsbsaRecordsPage />;
-    case 'register':
+    case "register":
       return <RegisterPage />;
-    case 'map':
+    case "map":
       return <MapPage />;
-    case 'import':
+    case "import":
       return <ImportPage />;
-    case 'export':
-      return <ExportPage />;
-    case 'history':
+    case "history":
       return <HistoryPage />;
-    case 'help':
+    case "help":
       return <HelpPage />;
     default:
       return <DashboardPage isSidebarCollapsed={isSidebarCollapsed} />;
